@@ -3,6 +3,7 @@ from django.db import models
 class Games(models.Model):
     gameID = models.AutoField(primary_key=True)
     numberOfRounds = models.IntegerField()
+    status = models.CharField(max_length=30)
 
 class Players(models.Model):
     playerID = models.AutoField(primary_key=True)
