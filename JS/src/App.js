@@ -9,6 +9,7 @@ import {
 import { Navbar, Nav } from 'react-bootstrap';
 import CreateGame from './CreateGame';
 import JoinGame from './JoinGame';
+import WaitingRoom from './WaitingRoom';
 
 function App(props) {
   return (    
@@ -24,6 +25,9 @@ function App(props) {
           </Route>
           <Route path="/CreateGame">
             <CreateGame />
+          </Route>
+          <Route path="/WaitingRoom">
+            <WaitingRoom />
           </Route>
           <Route path="/">
             <CreateGame />

@@ -1,6 +1,14 @@
 import React from 'react';
 import WaitingRoom from './WaitingRoom';
-import axios from 'axios'
+import axios from 'axios';
+import { useHistory } from "react-router-dom";
+
+function withMyHook(Component) {
+    return function WrappedComponent(props) {
+        const myHookValue = useHistory();
+        return <CreateGame {...props} history={myHookValue} />;
+    }
+}
 
 class CreateGame extends React.Component {
     constructor(props) {
@@ -25,10 +33,11 @@ class CreateGame extends React.Component {
         // Call the api
         const response = await axios.get('http://localhost:8000/CreateGame/' + this.state.numberOfRounds)
 
-        // Set the gameCode to the response
-        this.setState({gameCode: response.data})    
-
-        
+        // Send them to the waiting room
+        this.props.history.push({
+            pathname: '/WaitingRoom',
+            state: { gameCode: response.data }
+        });  
     }
   
     render() {
@@ -48,4 +57,4 @@ class CreateGame extends React.Component {
     
 }
 
-export default CreateGame;
+export default withMyHook(CreateGame);
