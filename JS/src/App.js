@@ -7,7 +7,7 @@ import {
   Link
 } from "react-router-dom";
 import { Navbar, Nav } from 'react-bootstrap';
-import NewGame from './NewGame';
+import CreateGame from './CreateGame';
 import JoinGame from './JoinGame';
 
 function App(props) {
@@ -16,17 +16,17 @@ function App(props) {
       <Router>
         <Navbar expand="lg">
           <Nav.Link><Link to="/JoinGame">Home</Link></Nav.Link>
-          <Nav.Link><Link to="/NewGame">New Game</Link></Nav.Link>
+          <Nav.Link><Link to="/CreateGame">Create Game</Link></Nav.Link>
         </Navbar>
         <Switch>
           <Route path="/JoinGame">
             <JoinGame />
           </Route>
-          <Route path="/NewGame">
-            <NewGame />
+          <Route path="/CreateGame">
+            <CreateGame />
           </Route>
           <Route path="/">
-            <JoinGame />
+            <CreateGame />
           </Route>
         </Switch>
       </Router>

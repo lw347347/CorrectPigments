@@ -20,7 +20,7 @@ class JoinGame extends React.Component {
     }
 
     handleSubmit(event) {
-        alert('Game ID: ' + this.state.gameID + '\n First Name: ' + this.state.firstName);
+        // Call the API
         event.preventDefault();
     }
   

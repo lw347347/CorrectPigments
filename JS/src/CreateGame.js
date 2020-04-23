@@ -1,10 +1,13 @@
 import React from 'react';
+import WaitingRoom from './WaitingRoom';
+import axios from 'axios'
 
-class NewGame extends React.Component {
+class CreateGame extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             numberOfRounds: '',
+            gameCode: '',
         }
         
         this.handleChange = this.handleChange.bind(this);
@@ -16,7 +19,16 @@ class NewGame extends React.Component {
     }
 
     handleSubmit(event) {
-        alert('Number of rounds: ' + this.state.numberOfRounds);
+        // Call the api
+        const response = axios.get('http://localhost:8000/CreateGame/' + this.state.numberOfRounds)
+
+        this.setState({ gameCode: response})
+        console.log(this.state.gameCode) 
+
+        // // Call the waiting room
+        // <WaitingRoom >
+        
+
         event.preventDefault();
     }
   
@@ -37,4 +49,4 @@ class NewGame extends React.Component {
     
 }
 
-export default NewGame;
+export default CreateGame;
