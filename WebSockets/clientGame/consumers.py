@@ -27,14 +27,18 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
 
-        # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
+        # Check if it says to start the game
+        if (message == 'startGame'):
+            # Send startGame message
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': 'The game has started.'
+                }
+            )
+
+        
 
     # Receive message from room group
     def chat_message(self, event):

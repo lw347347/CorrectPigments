@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Correct Pigments Game Host</title>
+    <title>Correct Pigments Client</title>
 </head>
 <body>
     <h1 id="chat-log" cols="100" rows="20"></h1><br>
@@ -11,8 +11,8 @@
     <script>
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
 
-        // Input the gameCode into the DOM
-        document.getElementById('chat-log').innerHTML = 'Your gameCode is ' + gameCode + '.<br>';
+        // Input that we're waiting for the game to start
+        document.getElementById('chat-log').innerHTML = 'Waiting for the game to start...';
 
         const chatSocket = new WebSocket(
             'ws://'

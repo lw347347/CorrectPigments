@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Join Game</title>
+</head>
+<body>
+    Game Code<br>
+    <input id="gameCode-input" type="text" size="100"><br>
+    <input id="gameCode-submit" type="button" value="Join Game">
+
+    <script>
+        document.querySelector('#gameCode-input').focus();
+        document.querySelector('#gameCode-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#gameCode-submit').click();
+            }
+        };
+
+        document.querySelector('#gameCode-submit').onclick = function(e) {
+            var gameCode = document.querySelector('#gameCode-input').value;
+            window.location.pathname = '/clientGame/GameClient/' + gameCode + '/';
+        };
+    </script>
+</body>
+</html>

@@ -15,14 +15,28 @@
             if (e.keyCode === 13) {  // enter, return
                 document.querySelector('#create-game-submit').click();
             }
-        };
-
-        // Call the API to get a game id
-        
+        };                
 
         document.querySelector('#create-game-submit').onclick = function(e) {
-            var roomName = document.querySelector('#create-game-input').value;
-            window.location.pathname = '/clientGame/GameHost/' + roomName + '/';
+            // Call the API to get a game id
+            var numberOfRounds = document.querySelector('#create-game-input').value;
+            var gameCode = 'error'
+            const Http = new XMLHttpRequest();
+            const url = 'http://192.168.1.38:8000/API/CreateGame/' + numberOfRounds;
+            Http.open("GET", url);
+            Http.send();
+
+            Http.onreadystatechange = function(){
+                if(this.readyState==4 && this.status==200){
+                    // Grab the gameCode from the API request
+                    gameCode = JSON.parse(Http.responseText);
+
+                    // Make the path
+                    path = '/clientGame/GameHost/' + gameCode + '/';
+                    
+                    window.location.pathname = path;
+                }
+            }
         };
     </script>
 </body>
