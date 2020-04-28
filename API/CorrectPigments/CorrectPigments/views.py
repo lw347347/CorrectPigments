@@ -34,6 +34,22 @@ def CreateGame(request, numberOfRounds):
 
     return Response(gameCode)
 
+# Start the game
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def StartGame(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.object.filter(gameID = gameID):
+        # It's found so update the game to started
+        game = Games.object.get(gameID = gameID)
+        game.status = 'started'
+        game.save()
+
+    return Response(gameCode)
+
 # Join a game
 @api_view(http_method_names=['GET'])
 @permission_classes((permissions.AllowAny,))
@@ -59,3 +75,10 @@ def JoinGame(request):
     else:
         # The game is not found
         return Response('That game does not exist.')
+
+#WebSockets
+# chat/views.py
+from django.shortcuts import render
+
+def index(request):
+    return render(request, '/game/index.html')

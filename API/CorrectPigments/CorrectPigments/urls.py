@@ -13,9 +13,10 @@ router.register(r'users', UserViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # url(r'^', include(router.urls)),
+    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('CreateGame/<int:numberOfRounds>', views.CreateGame, name='CreateGame'),
+    path('StartGame/<str:gameCode>', views.StartGame, name='StartGame'),
     path('JoinGame/', views.JoinGame, name='JoinGame'),
-
+    path('', views.index, name='index'),
 ]

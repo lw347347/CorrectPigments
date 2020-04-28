@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
-class WaitingRoom extends React.Component {
+class RunningGame extends React.Component {
     static propTypes = {
         match: PropTypes.object.isRequired,
         location: PropTypes.object.isRequired,
@@ -52,4 +52,4 @@ class WaitingRoom extends React.Component {
     
 }
 
-export default withRouter(WaitingRoom);
+export default withRouter(RunningGame);
