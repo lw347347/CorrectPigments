@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Correct Pigments Client</title>
+</head>
+<body>
+    <h1 id="chat-log" cols="100" rows="20"></h1><br>
+    <input id="startGame" type="button" value="Start Game">
+    {{ gameCode|json_script:"gameCode" }}
+    <script>
+        const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
+
+        // Input that we're waiting for the game to start
+        document.getElementById('chat-log').innerHTML = 'Waiting for the game to start...';
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + gameCode
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        // They clicked the start game button
+        document.querySelector('#startGame').onclick = function(e) {
+            chatSocket.send(JSON.stringify({
+                'message': 'startGame'
+            }));
+
+            // Hide the start button now
+            document.getElementById('startGame').style.display = "none";
+        };
+    </script>
+</body>
+</html>
