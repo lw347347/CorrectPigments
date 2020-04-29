@@ -21,6 +21,9 @@ def JoinGame(request):
     return render(request, 'clientGame/JoinGame.html')
 
 def GameClient(request, gameCode, clientName):
+    # Add the client to the database in the API
+    
+
     return render(request, 'clientGame/GameClient.html', {
         'gameCode': gameCode,
         'clientName': clientName

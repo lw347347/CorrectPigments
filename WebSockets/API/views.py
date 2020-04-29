@@ -40,9 +40,9 @@ def StartGame(request, gameCode):
     gameID = int(gameCode, 0)
 
     # Find the game
-    if Games.object.filter(gameID = gameID):
+    if Games.objects.filter(gameID = gameID):
         # It's found so update the game to started
-        game = Games.object.get(gameID = gameID)
+        game = Games.objects.get(gameID = gameID)
         game.status = 'started'
         game.save()
 
