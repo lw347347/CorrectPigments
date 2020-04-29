@@ -9,9 +9,11 @@
     <input id="startGame" type="button" value="Start Game">
     {{ gameCode|json_script:"gameCode"}}
     {{ clientName|json_script:"clientName"}}
+    {{ playerID|json_script:"playerID"}}
     <script>
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
         const clientName = JSON.parse(document.getElementById('clientName').textContent);
+        const playerID = JSON.parse(document.getElementById('playerID').textContent);
 
         // Input that we're waiting for the game to start
         document.getElementById('chat-log').innerHTML = 'Waiting for the game to start...';

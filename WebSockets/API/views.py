@@ -52,10 +52,10 @@ def StartGame(request, gameCode):
 @api_view(http_method_names=['GET'])
 @permission_classes((permissions.AllowAny,))
 @permission_classes((permissions.AllowAny,))
-def JoinGame(request):
+def JoinGame(request, gameCode, clientName):
     # Check if the game exists
     # Convert the gameCode to an integer
-    searchGameID = int(request.query_params.get('gameCode'), 0)
+    searchGameID = int(gameCode, 0)
 
     # Hit the database
     if Games.objects.filter(gameID=searchGameID):
@@ -63,13 +63,12 @@ def JoinGame(request):
         # Add them to the players
         newPlayer = Players()
         newPlayer.gameID = Games.objects.filter(gameID=searchGameID)[0]
-        newPlayer.realName = request.query_params.get('realName')
-        newPlayer.nickname = request.query_params.get('nickname')
+        newPlayer.realName = clientName
         newPlayer.numberOfPicks = 0
         newPlayer.points = 0
         newPlayer.save()
 
-        return Response(searchGameID)
+        return Response(newPlayer.playerID)
     else:
         # The game is not found
         return Response('That game does not exist.')

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import requests
 
 # Create your views here.
 def index(request):
@@ -22,9 +23,12 @@ def JoinGame(request):
 
 def GameClient(request, gameCode, clientName):
     # Add the client to the database in the API
-    
+    URL = 'http://192.168.1.38:8000/API/JoinGame/' + gameCode + '/' + clientName
+    response = requests.get(url = URL)
+    print(response)
 
     return render(request, 'clientGame/GameClient.html', {
         'gameCode': gameCode,
-        'clientName': clientName
+        'clientName': clientName,
+        'playerID': response.json()
     })
