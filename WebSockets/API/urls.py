@@ -14,6 +14,6 @@ urlpatterns = [
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('CreateGame/<int:numberOfRounds>', views.CreateGame, name='CreateGame'),
     path('StartGame/<str:gameCode>', views.StartGame, name='StartGame'),
-    path('JoinGame/', views.JoinGame, name='JoinGame'),
+    path('JoinGame/<str:gameCode>/<str:clientName>/', views.JoinGame, name='JoinGame'),
     path('', views.index, name='index'),
 ]

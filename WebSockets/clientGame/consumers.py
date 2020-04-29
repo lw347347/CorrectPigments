@@ -1,6 +1,7 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+import requests
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -29,6 +30,10 @@ class ChatConsumer(WebsocketConsumer):
 
         # Check if it says to start the game
         if (message == 'startGame'):
+            # Set the game as started in the API
+            URL = 'http://192.168.1.38:8000/API/StartGame/' + self.room_name
+            requests.get(url = URL)
+
             # Send startGame message
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,

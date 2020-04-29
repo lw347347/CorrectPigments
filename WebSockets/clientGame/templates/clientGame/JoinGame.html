@@ -7,6 +7,8 @@
 <body>
     Game Code<br>
     <input id="gameCode-input" type="text" size="100"><br>
+    Name<br>
+    <input id="clientName-input" type="text" size="100"><br>
     <input id="gameCode-submit" type="button" value="Join Game">
 
     <script>
@@ -19,7 +21,8 @@
 
         document.querySelector('#gameCode-submit').onclick = function(e) {
             var gameCode = document.querySelector('#gameCode-input').value;
-            window.location.pathname = '/clientGame/GameClient/' + gameCode + '/';
+            var clientName = document.querySelector('#clientName-input').value;
+            window.location.pathname = '/clientGame/GameClient/' + gameCode + '/' + clientName + '/';
         };
     </script>
 </body>
