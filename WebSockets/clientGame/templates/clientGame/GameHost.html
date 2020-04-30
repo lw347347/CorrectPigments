@@ -24,7 +24,15 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
+            var recipients = data['recipients'];
+
+            // Check if the message is for the server
+            for (var iCount = 0; iCount < recipients.length; iCount++) {
+                if (recipients[iCount] = -1) {
+                    // It was intended for the server
+                    document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
+                }
+            } 
         };
 
         chatSocket.onclose = function(e) {

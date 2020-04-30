@@ -6,7 +6,6 @@
 </head>
 <body>
     <h1 id="chat-log" cols="100" rows="20"></h1><br>
-    <input id="startGame" type="button" value="Start Game">
     {{ gameCode|json_script:"gameCode"}}
     {{ clientName|json_script:"clientName"}}
     {{ playerID|json_script:"playerID"}}
@@ -28,7 +27,18 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
+            var recipients = data['recipients'];
+
+            // Check if the message is for the client
+            for (var iCount = 0; iCount < recipients.length; iCount++) {
+                if (recipients[iCount] = playerID) {
+                    // It was intended for the client
+                    // Check if it's a start game message
+                    if (data.message = "The game has started.") {
+                        document.querySelector('#chat-log').innerHTML = (data.message + '<br>');
+                    }                    
+                }
+            }            
         };
 
         chatSocket.onclose = function(e) {
