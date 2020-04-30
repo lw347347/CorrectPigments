@@ -59,7 +59,17 @@ class ChatConsumer(WebsocketConsumer):
             URL = 'http://192.168.1.38:8000/API/PickAQuestion/' + self.room_name
             response = requests.get(url = URL)
 
-            print(response.json())
+            response = response.json()
+
+            # Send the message to pick a question to the correct recipient
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': [response.randomQuestion2, response.randomQuestion1],
+                    'recipients': [response.playerID, 'host']
+                }
+            )
 
     # Receive message from room group
     def chat_message(self, event):

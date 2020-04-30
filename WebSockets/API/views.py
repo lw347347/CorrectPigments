@@ -144,7 +144,9 @@ def PickAQuestion(request, gameCode):
         questions = Questions.objects.exclude(questionID__in=gameQuestions)
         questionsArray = []
         for question in questions:
-            questionsArray.append(question.questionID)
+            questionsArray.append({ 
+                'questionID': question.questionID, 
+                'question': question.question })
 
         # Pick two random questions
         randomNumber1 = int(random() * len(questions)) - 1
