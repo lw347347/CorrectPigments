@@ -15,7 +15,8 @@ def CreateGame(request):
 
 def GameHost(request, gameCode):
     return render(request, 'clientGame/GameHost.html', {
-        'gameCode': gameCode
+        'gameCode': gameCode,
+        
     })
 
 def JoinGame(request):

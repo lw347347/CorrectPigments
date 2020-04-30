@@ -48,6 +48,27 @@ def StartGame(request, gameCode):
 
     return Response(gameCode)
 
+# Get participants of the game
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def GetParticipants(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    playersArray = []
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so get all the players of that game
+        players = Players.objects.filter(gameID = gameID)
+
+        # Put the players in an array
+        for player in players:
+            playersArray.append(player.playerID)
+            
+    # Send back the array
+    return Response(playersArray)
+
 # Join a game
 @api_view(http_method_names=['GET'])
 @permission_classes((permissions.AllowAny,))
