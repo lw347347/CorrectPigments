@@ -56,9 +56,10 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             # Figure out who is picking the first question
-            
+            URL = 'http://192.168.1.38:8000/API/PickAQuestion/' + self.room_name
+            response = requests.get(url = URL)
 
-        
+            print(response.json())
 
     # Receive message from room group
     def chat_message(self, event):

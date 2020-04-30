@@ -7,6 +7,7 @@ from rest_framework import permissions
 from API.models import Games
 from API.models import Players
 from API.models import Questions
+from API.models import GameQuestions
 
 # ViewSets define the view behavior.
 class UserViewSet(viewsets.ModelViewSet):
@@ -95,7 +96,80 @@ def JoinGame(request, gameCode, clientName):
         # The game is not found
         return Response('That game does not exist.')
 
-# Start the game
+# Pick a person to pick the question and the questions they can pick from
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+@permission_classes((permissions.AllowAny,))
+def PickAQuestion(request, gameCode):
+    # Check if the game exists
+    # Convert the gameCode to an integer
+    searchGameID = int(gameCode, 0)
+
+    # Hit the database
+    if Games.objects.filter(gameID=searchGameID):
+        # The game is found
+        # Figure out the person who is picking the questions
+        # Grab all the players from that game
+        players = Players.objects.filter(gameID = searchGameID)
+        lowestNumberOfPicks = 0
+        playersArray = []
+
+        # Figure out the lowest number of picks
+        for player in players:
+            if player.numberOfPicks < lowestNumberOfPicks:
+                lowestNumberOfPicks = player.numberOfPicks
+
+        # Add the players with the lowest number of picks
+        for player in players:
+            if player.numberOfPicks == lowestNumberOfPicks:
+                playersArray.append(player)
+        
+        # Pick a random player
+        from random import seed, random
+        seed(12345)
+        randomNumber = int(random() * len(playersArray)) - 1
+        if randomNumber < 0:
+            randomNumber = 0
+        randomPlayer = playersArray[randomNumber].playerID
+
+        # Pick two random questions 
+        # Grab all the questions that have been asked
+        gameQuestions = (GameQuestions.objects.filter(gameID = searchGameID).values('questionID'))
+        gameQuestionsArray = []
+        for gameQuestion in gameQuestions:
+            gameQuestionsArray.append(gameQuestion)
+
+        # Filter the questions down by the gameQuestions
+        # Grab all questions
+        questions = Questions.objects.exclude(questionID__in=gameQuestions)
+        questionsArray = []
+        for question in questions:
+            questionsArray.append(question.questionID)
+
+        # Pick two random questions
+        randomNumber1 = int(random() * len(questions)) - 1
+        if randomNumber1 < 0:
+            randomNumber1 = 0
+        randomNumber2 = randomNumber1
+        randomQuestion1 = questionsArray[randomNumber1]
+        randomQuestion2 = questionsArray[0]
+        while randomNumber1 == randomNumber2:
+            randomNumber2 = int(random() * len(questionsArray)) - 1
+            if randomNumber2 < 0:
+                randomNumber2 = 0
+        
+        randomQuestion2 = questionsArray[randomNumber2]
+
+        return Response({ 
+            'playerID': randomPlayer, 
+            'randomQuestion1': randomQuestion1, 
+            'randomQuestion2': randomQuestion2 
+        })
+    else:
+        # The game is not found
+        return Response('That game does not exist.')
+
+# Input Question
 @api_view(http_method_names=['POST'])
 @permission_classes((permissions.AllowAny,))
 def InputQuestion(request):
