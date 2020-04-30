@@ -33,3 +33,6 @@ def GameClient(request, gameCode, clientName):
         'clientName': clientName,
         'playerID': response.json()
     })
+
+def InputQuestion(request):    
+    return render(request, 'clientGame/InputQuestion.html')

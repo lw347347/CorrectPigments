@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from API.models import Games
 from API.models import Players
+from API.models import Questions
 
 # ViewSets define the view behavior.
 class UserViewSet(viewsets.ModelViewSet):
@@ -93,6 +94,19 @@ def JoinGame(request, gameCode, clientName):
     else:
         # The game is not found
         return Response('That game does not exist.')
+
+# Start the game
+@api_view(http_method_names=['POST'])
+@permission_classes((permissions.AllowAny,))
+def InputQuestion(request):
+    question = request.data['question']
+
+    # Input the question into the database
+    newQuestion = Questions()
+    newQuestion.question = question
+    newQuestion.save()
+
+    return Response(newQuestion.questionID)
 
 #WebSockets
 # chat/views.py

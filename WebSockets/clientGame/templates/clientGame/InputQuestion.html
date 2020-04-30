@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Input Question</title>
+</head>
+<body>
+    <div id='body'>
+        Question<br>
+        <textarea name="question-input" id="question-input"></textarea><br>
+        <input id="question-submit" type="button" value="Submit Question">
+    </div>
+
+    <script>
+        document.querySelector('#question-input').focus();
+        document.querySelector('#question-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#question-submit').click();
+            }
+        };
+
+        document.querySelector('#question-submit').onclick = function(e) {
+            // send the question to the API
+            // Call the API to get a gameCode
+            var question = document.querySelector('#question-input').value;
+            const Http = new XMLHttpRequest();
+            const url = 'http://192.168.1.38:8000/API/InputQuestion/';
+            Http.open("POST", url);
+
+            //Send the proper header information along with the request
+            Http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            // Set the parameters
+            var params = "question=" + question
+
+            Http.send(params);
+
+            Http.onreadystatechange = function(){
+                if(this.readyState==4 && this.status==200){
+                    // Set the body as success
+                    document.getElementById('body').innerHTML = 'Success';
+                }
+            }
+        };
+    </script>
+</body>
+</html>
