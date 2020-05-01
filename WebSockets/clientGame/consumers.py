@@ -70,7 +70,10 @@ class ChatConsumer(WebsocketConsumer):
                     'randomQuestion2': response['randomQuestion2'],
                     'recipients': [response['playerID'], '-1', response['playerID']['playerID']]
                 }
-            )
+            ) else if ( message = "pickedQuestion") {
+                # Someone just picked a question
+                
+            }
 
     # Receive message from room group
     def chat_message(self, event):
