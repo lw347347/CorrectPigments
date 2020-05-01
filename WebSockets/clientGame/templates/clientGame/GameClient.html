@@ -29,14 +29,29 @@
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
 
+            console.log(data);
+
             // Check if the message is for the client
             for (var iCount = 0; iCount < recipients.length; iCount++) {
-                if (recipients[iCount] = playerID) {
+                if (recipients[iCount] == playerID) {
                     // It was intended for the client
                     // Check if it's a start game message
                     if (data.message = "The game has started.") {
                         document.querySelector('#chat-log').innerHTML = (data.message + '<br>');
-                    }                    
+                    }
+                    
+                    // Check if it's a pick a question prompt
+                    if (data.randomQuestion1) {
+                        // Build the questions out
+                        innerHTML = 'Pick a question<br>';
+                        innerHTML = innerHTML + "<button id='randomQuestion1' name='" + data.randomQuestion1.questionID + "'>";
+                        innerHTML = innerHTML + '1</button><br>';
+                        innerHTML = innerHTML + "<button id='randomQuestion2' name='" + data.randomQuestion2.questionID + "'>";
+                        innerHTML = innerHTML + '2</button><br>';
+
+                        // Set the chat log to these questions
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                    }
                 }
             }            
         };

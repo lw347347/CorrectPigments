@@ -65,9 +65,10 @@ class ChatConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
-                    'type': 'chat_message',
-                    'message': [response.randomQuestion2, response.randomQuestion1],
-                    'recipients': [response.playerID, 'host']
+                    'type': 'pick_question',
+                    'randomQuestion1': response['randomQuestion1'],
+                    'randomQuestion2': response['randomQuestion2'],
+                    'recipients': [response['playerID'], '-1', response['playerID']['playerID']]
                 }
             )
 
@@ -79,5 +80,18 @@ class ChatConsumer(WebsocketConsumer):
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
+            'recipients': recipients
+        }))
+
+    # Pick Question
+    def pick_question(self, event):
+        randomQuestion1 = event['randomQuestion1']
+        randomQuestion2 = event['randomQuestion2']
+        recipients = event['recipients']
+
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'randomQuestion1': randomQuestion1,
+            'randomQuestion2': randomQuestion2,
             'recipients': recipients
         }))

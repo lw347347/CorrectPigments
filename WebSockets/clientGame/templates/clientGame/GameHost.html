@@ -25,12 +25,27 @@
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
+            var innerHTML = '';
+
+            console.log(data)
 
             // Check if the message is for the server
             for (var iCount = 0; iCount < recipients.length; iCount++) {
-                if (recipients[iCount] = -1) {
+                if (recipients[iCount] == -1) {
                     // It was intended for the server
-                    document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
+                    // Check if it was a pickQuestion
+                    if (data.randomQuestion1) {
+                        // It was a pickQuestion so figure out the display
+                        innerHTML = recipients[0]['realName'] + ' gets to choose the question.<br>';
+                        innerHTML = innerHTML + '<h3>Question 1<h3><br><h4>' + data.randomQuestion1.question +'<h4><b4>';
+                        innerHTML = innerHTML + '<h3> Question 2<h3><br><h4>' + data.randomQuestion2.question + '<h4>';
+
+                        // Set the display
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                    } else {
+                        document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
+                    }
+                    
                 }
             } 
         };

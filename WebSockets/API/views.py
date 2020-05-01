@@ -130,7 +130,10 @@ def PickAQuestion(request, gameCode):
         randomNumber = int(random() * len(playersArray)) - 1
         if randomNumber < 0:
             randomNumber = 0
-        randomPlayer = playersArray[randomNumber].playerID
+        randomPlayer = {
+            'playerID': playersArray[randomNumber].playerID,
+            'realName': playersArray[randomNumber].realName
+        }
 
         # Pick two random questions 
         # Grab all the questions that have been asked
@@ -146,7 +149,8 @@ def PickAQuestion(request, gameCode):
         for question in questions:
             questionsArray.append({ 
                 'questionID': question.questionID, 
-                'question': question.question })
+                'question': question.question 
+            })
 
         # Pick two random questions
         randomNumber1 = int(random() * len(questions)) - 1
