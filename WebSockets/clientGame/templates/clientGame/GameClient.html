@@ -13,6 +13,7 @@
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
         const clientName = JSON.parse(document.getElementById('clientName').textContent);
         const playerID = JSON.parse(document.getElementById('playerID').textContent);
+        var questions = []
 
         // Input that we're waiting for the game to start
         document.getElementById('chat-log').innerHTML = 'Waiting for the game to start...';
@@ -29,30 +30,53 @@
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
 
+            console.log(data);
+
             // Check if the message is for the client
             for (var iCount = 0; iCount < recipients.length; iCount++) {
-                if (recipients[iCount] = playerID) {
+                if (recipients[iCount] == playerID) {
                     // It was intended for the client
                     // Check if it's a start game message
                     if (data.message = "The game has started.") {
                         document.querySelector('#chat-log').innerHTML = (data.message + '<br>');
-                    }                    
+                    }
+                    
+                    // Check if it's a pick a question prompt
+                    if (data.randomQuestion1) {
+                        // Set the questions for later
+                        questions[0] = (data.randomQuestion1);
+                        questions[1] = (data.randomQuestion2);
+
+                        // Build the questions out
+                        innerHTML = 'Pick a question<br>';
+                        innerHTML = innerHTML + "<button id='randomQuestion1' name='" + data.randomQuestion1.questionID 
+                            + "' onclick='sendQuestion(1)'>";
+                        innerHTML = innerHTML + '1</button><br>';
+                        innerHTML = innerHTML + "<button id='randomQuestion2' name='" + data.randomQuestion2.questionID 
+                            + "' onclick='sendQuestion(2)'>";
+                        innerHTML = innerHTML + '2</button><br>';
+
+                        // Set the chat log to these questions
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                    }
                 }
             }            
         };
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
-
-        // They clicked the start game button
-        document.querySelector('#startGame').onclick = function(e) {
+        function sendQuestion(questionIndex) {
+            // Send the question
             chatSocket.send(JSON.stringify({
-                'message': 'startGame'
+                'message': 'someonePickedAQuestion',
+                'playerID': playerID,
+                'question': questions[questionIndex]
             }));
 
-            // Hide the start button now
-            document.getElementById('startGame').style.display = "none";
+            // Hide the questions now
+            document.querySelector('#chat-log').innerHTML = 'Waiting...';
+        }
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
         };
     </script>
 </body>

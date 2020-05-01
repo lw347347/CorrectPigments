@@ -56,9 +56,24 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             # Figure out who is picking the first question
-            
+            URL = 'http://192.168.1.38:8000/API/PickAQuestion/' + self.room_name
+            response = requests.get(url = URL)
 
-        
+            response = response.json()
+
+            # Send the message to pick a question to the correct recipient
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'pick_question',
+                    'randomQuestion1': response['randomQuestion1'],
+                    'randomQuestion2': response['randomQuestion2'],
+                    'recipients': [response['playerID'], '-1', response['playerID']['playerID']]
+                }
+            ) else if ( message = "pickedQuestion") {
+                # Someone just picked a question
+                
+            }
 
     # Receive message from room group
     def chat_message(self, event):
@@ -68,5 +83,18 @@ class ChatConsumer(WebsocketConsumer):
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
+            'recipients': recipients
+        }))
+
+    # Pick Question
+    def pick_question(self, event):
+        randomQuestion1 = event['randomQuestion1']
+        randomQuestion2 = event['randomQuestion2']
+        recipients = event['recipients']
+
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'randomQuestion1': randomQuestion1,
+            'randomQuestion2': randomQuestion2,
             'recipients': recipients
         }))
