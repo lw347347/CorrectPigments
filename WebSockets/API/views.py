@@ -256,8 +256,9 @@ def CastVote(request, gameCode, voterID, playerID):
         player = Players.objects.filter(playerID = playerID)[0]
 
         # Find the gameQuestion we're looking for
-        gameQuestion = GameQuestions.objects.filter(gameID = gameID)
-        for question in gameQuestion:
+        gameQuestion = GameQuestions()
+        gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+        for question in gameQuestions:
             gameQuestion = question
 
         # Input everything into the database
@@ -269,6 +270,105 @@ def CastVote(request, gameCode, voterID, playerID):
 
     # Send back the voteID
     return Response(vote.voteID)
+
+# Make Prediction
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def MakePrediction(request, gameCode, playerID, prediction):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+    
+    # Make the playerID an int
+    playerID = int(playerID)
+
+    # Find out if they have most, some, or none of the votes
+    # Get the last gameQuestionID
+    gameQuestionID = ''
+    gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+    for question in GameQuestions:
+        gameQuestion = question.gameQuestionID
+
+    # Get the votes for that gameQuestion
+    votes = Votes.objects.filter(gameQuestionID = gameQuestionID)
+
+    # Tally up the votes
+    voteArray = []
+    for vote in votes:
+        # Check if that player is in the voteArray
+        theyAreInAlready = False
+        voteArrayIndex = 0
+        for item in voteArray:
+            if vote.playerID == item[0]:
+                theyAreInAlready = True
+                break
+            else:
+                voteArrayIndex = voteArrayIndex + 1
+        if theyAreInAlready == True:
+            # Increment how many votes they have
+            voteArray[voteArrayIndex][1] = voteArray[voteArrayIndex][1] + 1
+        else:
+            # They aren't in there so push them to it and increment their vote count
+            voteArray.append([vote.playerID, 1])
+    
+    # Determine the highest number of votes
+    highestNumberOfVotes = 0
+    numberOfVotesForPlayer = 0
+    for vote in voteArray:
+        if vote[1] > highestNumberOfVotes:
+            highestNumberOfVotes = vote[1]
+        if vote[0] == playerID:
+            # Determine how many votes they received
+            numberOfVotesForPlayer = vote[1]
+
+    # Determine if they had most, some, or none
+    correctPrediction = ''
+    if numberOfVotesForPlayer == 0:
+        correctPrediction = 'none'
+    elif numberOfVotesForPlayer < highest:
+        correctPrediction = 'some'
+    else:
+        correctPrediction = 'most'
+    
+    # Determine how many points they get
+    response = ''
+    if prediction == correctPrediction:
+        if prediction == 'some':
+            # They get 1 point
+            player = Players.objects.filter(playerID = playerID)[0]
+            player.points = player.points + 1
+            player.save()
+
+            # Build the response
+            response = player.realName + ' earned 1 point because they predicted they would get some votes '
+            response = response + 'and they had ' + str(numberOfVotesForPlayer) + ' votes.'
+        elif prediction == 'most':
+            # They get 3 points
+            player = Players.objects.filter(playerID = playerID)[0]
+            player.points = player.points + 3
+            player.save()
+
+            # Build the response
+            response = player.realName + ' earned 3 points because they predicted they would get most votes ' 
+            response = response + 'and they had ' + str(numberOfVotesForPlayer) + ' votes.'
+
+        elif prediction == 'none':
+            # They get 3 points
+            player = Players.objects.filter(playerID = playerID)[0]
+            player.points = player.points + 3
+            player.save()
+
+            # Build the response
+            response = player.realName + ' earned 3 points because they predicted they would get no votes.'
+
+    else:
+        # Build the response
+        if prediction == none:
+            prediction = 'no'
+        response = player.realName + " didn't earn any votes because they predicted they would get "
+        response = response + prediction + ' votes and they had ' + str(numberOfVotesForPlayer) + '.'
+
+    # Send back the voteID
+    return Response(response)
 
 #WebSockets
 # chat/views.py

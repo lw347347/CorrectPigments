@@ -117,6 +117,51 @@ class ChatConsumer(WebsocketConsumer):
             URL = 'http://192.168.1.38:8000/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID2) + '/'
             response = requests.get(url = URL)
 
+        # Check if it's time to make predictions
+        elif ( message == 'makePrediction'):
+            # Grab all the participants of that game
+            URL = 'http://192.168.1.38:8000/API/GetParticipants/' + self.room_name
+            response = requests.get(url = URL)
+
+            # This contains a list of players by their playerID
+            playersArray = response.json()
+
+            # Add the host to the players Array
+            playersArray.append(-1)
+
+            # Send the message to make prediction 
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'makePrediction',
+                    'message': 'makePrediction',
+                    'recipients': playersArray
+                }
+            )
+
+        # Check if someone made a prediction
+        elif ( message == 'someonePredicted' ):
+            playerID = text_data_json['playerID']
+            prediction = text_data_json['prediction']
+
+            # Send the predictions to the API
+            URL = 'http://192.168.1.38:8000/API/MakePrediction/' + self.room_name + '/' 
+            URL = URL + playerID + '/' + prediction + '/'
+            response = requests.get(url = URL)
+
+            print(response)
+
+            # Sent the response to the gameHost
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'madePrediction',
+                    'response': response,
+                    'recipients': [-1]
+                }
+            )
+
+
     # Receive message from room group
     def chat_message(self, event):
         message = event['message']
@@ -154,4 +199,23 @@ class ChatConsumer(WebsocketConsumer):
             'question': question,
             'recipients': recipients,            
             'names': names,
+        }))
+
+    # Make prediciton
+    def makePrediction(self, event):
+        recipients = event['recipients']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'makePrediction',
+            'recipients': recipients
+        }))
+
+    # Someone made a prediciton
+    def madePrediction(self, event):
+        response = event['response']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'madePrediction',
+            'recipients': [-1],
+            'response': response
         }))

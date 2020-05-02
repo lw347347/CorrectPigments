@@ -6,10 +6,12 @@
 </head>
 <body>
     <h1 id="chat-log" cols="100" rows="20"></h1><br>
+    <h2 id="countdown"></h2><br>
     <input id="startGame" type="button" value="Start Game">
     {{ gameCode|json_script:"gameCode" }}
     <script>
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
+        var madePredictionResults = '';
 
         // Input the gameCode into the DOM
         document.getElementById('chat-log').innerHTML = 'Your gameCode is ' + gameCode + '.<br>';
@@ -21,6 +23,10 @@
             + gameCode
             + '/'
         );
+
+        function doNothing() {
+            x = 1;
+        }
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -47,10 +53,51 @@
                     // Check if it's a vote prompt
                     else if (data.question) {
                         // Create the question
-                        innerHTML = data.question.question
+                        innerHTML = data.question.question;
 
-                        // Display thte question
+                        // Display the question
                         document.querySelector('#chat-log').innerHTML = innerHTML;
+
+                        // Countdown
+                        var timeleft = 20;
+                        var downloadTimer = setInterval(function(){
+                        if(timeleft <= 0){
+                            clearInterval(downloadTimer);
+                            document.getElementById("countdown").innerHTML = "Make your prediction";
+
+                            // Send off the makePrediction message
+                            chatSocket.send(JSON.stringify({
+                                'message': 'makePrediction'
+                            }));
+                        } else {
+                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                        }
+                        timeleft -= 1;
+                        }, 1000);
+                    }
+
+                    // Check if it's a makePrediction prompt
+                    else if (data.message == 'makePrediction') {
+                        // Countdown
+                        var timeleft = 20;
+                        var downloadTimer = setInterval(function(){
+                        if(timeleft <= 0){
+                            clearInterval(downloadTimer);
+
+                            // Display the makePrediction results
+                            madePredictionResults = madePredictionResults + '<button onclick="nextRound()">Next Round</button>';
+                            document.getElementById('chat-log').innerHTML = madePredictionResults;
+                        } else {
+                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                        }
+                        timeleft -= 1;
+                        }, 1000);
+                    }
+
+                    // Check if someone just made a prediction
+                    else if (data.message == 'madePrediction') {
+                        // Add it to the madePrediction results
+                        madePredictionResults = madePredictionResults + '<h3>' + (data.response) + '</h3>'
                     }
 
                     else {
