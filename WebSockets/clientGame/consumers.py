@@ -145,13 +145,11 @@ class ChatConsumer(WebsocketConsumer):
             prediction = text_data_json['prediction']
 
             # Send the predictions to the API
-            URL = 'http://192.168.1.38:8000/API/MakePrediction/' + self.room_name + '/' 
-            URL = URL + playerID + '/' + prediction + '/'
+            URL = 'http://192.168.1.38:8000/API/MakePrediction/' + self.room_name + '/' + str(playerID) + '/' + prediction
             response = requests.get(url = URL)
+            response = response.json()
 
-            print(response)
-
-            # Sent the response to the gameHost
+            # Send the response to the gameHost
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
@@ -187,7 +185,7 @@ class ChatConsumer(WebsocketConsumer):
             'recipients': recipients
         }))
 
-    # Pick Question
+    # Vote
     def vote(self, event):
         question = event['question']
         recipients = event['recipients']

@@ -285,8 +285,8 @@ def MakePrediction(request, gameCode, playerID, prediction):
     # Get the last gameQuestionID
     gameQuestionID = ''
     gameQuestions = GameQuestions.objects.filter(gameID = gameID)
-    for question in GameQuestions:
-        gameQuestion = question.gameQuestionID
+    for question in gameQuestions:
+        gameQuestionID = question.gameQuestionID
 
     # Get the votes for that gameQuestion
     votes = Votes.objects.filter(gameQuestionID = gameQuestionID)
@@ -309,14 +309,13 @@ def MakePrediction(request, gameCode, playerID, prediction):
         else:
             # They aren't in there so push them to it and increment their vote count
             voteArray.append([vote.playerID, 1])
-    
     # Determine the highest number of votes
     highestNumberOfVotes = 0
     numberOfVotesForPlayer = 0
     for vote in voteArray:
         if vote[1] > highestNumberOfVotes:
             highestNumberOfVotes = vote[1]
-        if vote[0] == playerID:
+        if vote[0].playerID == playerID:
             # Determine how many votes they received
             numberOfVotesForPlayer = vote[1]
 
@@ -324,7 +323,7 @@ def MakePrediction(request, gameCode, playerID, prediction):
     correctPrediction = ''
     if numberOfVotesForPlayer == 0:
         correctPrediction = 'none'
-    elif numberOfVotesForPlayer < highest:
+    elif numberOfVotesForPlayer < highestNumberOfVotes:
         correctPrediction = 'some'
     else:
         correctPrediction = 'most'
@@ -362,12 +361,14 @@ def MakePrediction(request, gameCode, playerID, prediction):
 
     else:
         # Build the response
-        if prediction == none:
+        if prediction == 'none':
             prediction = 'no'
-        response = player.realName + " didn't earn any votes because they predicted they would get "
+
+        player = Players.objects.filter(playerID = playerID)[0]
+        response = player.realName + " didn't earn any points because they predicted they would get "
         response = response + prediction + ' votes and they had ' + str(numberOfVotesForPlayer) + '.'
 
-    # Send back the voteID
+    # Send back the response
     return Response(response)
 
 #WebSockets

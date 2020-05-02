@@ -133,8 +133,9 @@
                     else if (data.message == 'makePrediction') {
                         // Display their options for their prediction
                         innerHTML = '<button onClick="makePrediction(0)">Most votes</button>';
-                        innerHTML = innerHTML + '<button onClick="makePrediction(1)">Some votes</button>'
-                        innerHTML = innerHTML + '<button onClick="makePrediction(2)">No votes</button>'
+                        innerHTML = innerHTML + '<button onClick="makePrediction(1)">Some votes</button>';
+                        innerHTML = innerHTML + '<button onClick="makePrediction(2)">No votes</button>';
+                        document.getElementById('chat-log').innerHTML = innerHTML;
                     }
                 }
             }            
@@ -193,6 +194,9 @@
                     'playerID': playerID,
                     'prediction': 'most'
                 }));
+
+                // Hide the prediction now
+                document.getElementById('chat-log').innerHTML = 'Waiting...';
                 
             } else if (option == 1) {
                 // Some votes
@@ -202,6 +206,9 @@
                     'playerID': playerID,
                     'prediction': 'some'
                 }));
+
+                // Hide the prediction now
+                document.getElementById('chat-log').innerHTML = 'Waiting...';
             } else {
                 // No votes
                 // Send it off
@@ -210,6 +217,9 @@
                     'playerID': playerID,
                     'prediction': 'none'
                 }));
+
+                // Hide the prediction now
+                document.getElementById('chat-log').innerHTML = 'Waiting...';
             }
         }
 

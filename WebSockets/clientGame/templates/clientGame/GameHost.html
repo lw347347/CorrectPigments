@@ -28,6 +28,10 @@
             x = 1;
         }
 
+        function displayMadePredictionResults() {
+            document.getElementById('chat-log').innerHTML = madePredictionResults;
+        }
+
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
@@ -78,20 +82,8 @@
 
                     // Check if it's a makePrediction prompt
                     else if (data.message == 'makePrediction') {
-                        // Countdown
-                        var timeleft = 20;
-                        var downloadTimer = setInterval(function(){
-                        if(timeleft <= 0){
-                            clearInterval(downloadTimer);
-
-                            // Display the makePrediction results
-                            madePredictionResults = madePredictionResults + '<button onclick="nextRound()">Next Round</button>';
-                            document.getElementById('chat-log').innerHTML = madePredictionResults;
-                        } else {
-                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
-                        }
-                        timeleft -= 1;
-                        }, 1000);
+                        // Display a done button
+                        document.getElementById('countdown').innerHTML = '<button onclick="displayMadePredictionResults()">Display Prediction Results</button>';
                     }
 
                     // Check if someone just made a prediction
