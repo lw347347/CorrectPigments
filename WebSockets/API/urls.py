@@ -18,5 +18,7 @@ urlpatterns = [
     path('GetParticipants/<str:gameCode>/', views.GetParticipants, name='GetParticipants'),
     path('InputQuestion/', views.InputQuestion, name='InputQuestion'),
     path('PickAQuestion/<str:gameCode>/', views.PickAQuestion, name='PickAQuestion'),
+    path('GetParticipantNames/<str:gameCode>/', views.GetParticipantNames, name='GetParticipantNames'),
+    path('InputGameQuestion/<str:gameCode>/<int:questionID>/<int:playerID>/', views.InputGameQuestion, name='InputGameQuestion'),
     path('', views.index, name='index'),
 ]

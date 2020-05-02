@@ -29,6 +29,7 @@
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
+            var innerHTML = '';
 
             console.log(data);
 
@@ -37,12 +38,11 @@
                 if (recipients[iCount] == playerID) {
                     // It was intended for the client
                     // Check if it's a start game message
-                    if (data.message = "The game has started.") {
+                    if (data.message == "The game has started.") {
                         document.querySelector('#chat-log').innerHTML = (data.message + '<br>');
                     }
-                    
                     // Check if it's a pick a question prompt
-                    if (data.randomQuestion1) {
+                    else if (data.message == "pick_question") {
                         // Set the questions for later
                         questions[0] = (data.randomQuestion1);
                         questions[1] = (data.randomQuestion2);
@@ -57,6 +57,19 @@
                         innerHTML = innerHTML + '2</button><br>';
 
                         // Set the chat log to these questions
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                    }
+
+                    // Check if it's a vote prompt
+                    else if (data.message == "Vote please") {                        
+                        // Create the names for them to choose
+                        innerHTML = '';
+                        for (var iCount = 0; iCount < data.names.length; iCount++) {
+                            innerHTML = innerHTML + '<button id=' + data.names[iCount].playerID + '>' + data.names[iCount].realName
+                                + '</button>';
+                        }
+
+                        // Set the chat log to these votes
                         document.querySelector('#chat-log').innerHTML = innerHTML;
                     }
                 }

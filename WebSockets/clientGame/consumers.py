@@ -70,10 +70,40 @@ class ChatConsumer(WebsocketConsumer):
                     'randomQuestion2': response['randomQuestion2'],
                     'recipients': [response['playerID'], '-1', response['playerID']['playerID']]
                 }
-            ) else if ( message = "pickedQuestion") {
-                # Someone just picked a question
-                
-            }
+            ) 
+        elif ( message == "someonePickedAQuestion"):
+            # Someone just picked a question
+            # Grab the question and player
+            question =  text_data_json['question']
+            playerID =  text_data_json['playerID']
+
+            # Input the gameQuestion into the database
+            URL = 'http://192.168.1.38:8000/API/InputGameQuestion/' + self.room_name + '/' + str(question['questionID']) + '/' + str(playerID)
+            response = requests.get(url = URL)
+
+            # Get names
+            URL = 'http://192.168.1.38:8000/API/GetParticipantNames/' + self.room_name
+            response = requests.get(url = URL)
+
+            # This is equal to all the playerIDs and their names
+            names = response.json()
+            recipients = []
+            for recipient in names:
+                recipients.append(recipient['playerID'])
+            
+            # Add the host onto the recipients
+            recipients.append(-1)
+
+            # Send the message to vote 
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'vote',
+                    'question': question,
+                    'recipients': recipients,
+                    'names': names
+                }
+            )
 
     # Receive message from room group
     def chat_message(self, event):
@@ -94,7 +124,22 @@ class ChatConsumer(WebsocketConsumer):
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({
+            'message': 'pick_question',
             'randomQuestion1': randomQuestion1,
             'randomQuestion2': randomQuestion2,
             'recipients': recipients
+        }))
+
+    # Pick Question
+    def vote(self, event):
+        question = event['question']
+        recipients = event['recipients']
+        names = event['names']
+
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'Vote please',
+            'question': question,
+            'recipients': recipients,            
+            'names': names,
         }))

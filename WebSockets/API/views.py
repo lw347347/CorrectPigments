@@ -4,6 +4,7 @@ from rest_framework import routers, serializers, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import permissions
+from django.db.models import Max
 from API.models import Games
 from API.models import Players
 from API.models import Questions
@@ -187,6 +188,60 @@ def InputQuestion(request):
     newQuestion.save()
 
     return Response(newQuestion.questionID)
+
+# Input GameQuestion
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def InputGameQuestion(request, gameCode, questionID, playerID):
+    # Create the game question
+    gameQuestion = GameQuestions()
+
+    # Convert the gamecode to the gameID
+    gameID = int(gameCode, 0)
+
+    # get the game, question, and player
+    game = Games.objects.filter(gameID = gameID)[0]
+    question = Questions.objects.filter(questionID = int(questionID))[0]
+    player = Players.objects.filter(playerID = int(playerID))[0]
+    
+    # Get the roundNumber
+    gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+    roundNumber = 1
+    for item in gameQuestions:
+        roundNumber = roundNumber + 1
+
+    # Put the gameID, questionID, playerID, and roundNumber
+    gameQuestion.gameID = game
+    gameQuestion.questionID = question
+    gameQuestion.playerID = player
+    gameQuestion.roundNumber = roundNumber
+
+    # Input the gamequestion into the database
+    gameQuestion.save()
+
+    return Response(gameQuestion.gameQuestionID)
+
+# Get participant names
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def GetParticipantNames(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    playersArray = []
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so get all the players of that game
+        players = Players.objects.filter(gameID = gameID)
+
+        # Put the players in an array
+        for player in players:
+            playersArray.append({ 'playerID': player.playerID, 'realName': player.realName })
+            
+    # Send back the array
+    return Response(playersArray)
+
 
 #WebSockets
 # chat/views.py

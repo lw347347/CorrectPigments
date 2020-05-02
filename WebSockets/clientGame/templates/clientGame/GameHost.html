@@ -42,7 +42,18 @@
 
                         // Set the display
                         document.querySelector('#chat-log').innerHTML = innerHTML;
-                    } else {
+                    } 
+
+                    // Check if it's a vote prompt
+                    else if (data.question) {
+                        // Create the question
+                        innerHTML = data.question.question
+
+                        // Display thte question
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                    }
+
+                    else {
                         document.querySelector('#chat-log').innerHTML += (data.message + '<br>');
                     }
                     
