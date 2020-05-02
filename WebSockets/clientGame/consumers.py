@@ -104,6 +104,13 @@ class ChatConsumer(WebsocketConsumer):
                     'names': names
                 }
             )
+        # Check if someone voted
+        elif ( message == 'someoneVoted') {
+            voterID =  text_data_json['voterID']
+            playerID1 = text_data_json[votes]['playerID1']
+            playerID2 = text_data_json[votes]['playerID2']
+            # Call the API for the first 
+        }
 
     # Receive message from room group
     def chat_message(self, event):
