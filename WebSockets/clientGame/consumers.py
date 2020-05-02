@@ -55,6 +55,19 @@ class ChatConsumer(WebsocketConsumer):
                 }
             )
 
+            # Grab all the players and their scores (0)
+            URL = 'http://192.168.1.38:8000/API/GrabScores/' + self.room_name
+            response = requests.get(url = URL)
+            playersArray = response.json()
+
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'sendScores',
+                    'scores': playersArray
+                }
+            )
+
             # Figure out who is picking the first question
             URL = 'http://192.168.1.38:8000/API/PickAQuestion/' + self.room_name
             response = requests.get(url = URL)
@@ -161,6 +174,19 @@ class ChatConsumer(WebsocketConsumer):
 
         # Check if it's time for the next round
         elif ( message == 'nextRound' ):
+            # Grab all the players and their scores
+            URL = 'http://192.168.1.38:8000/API/GrabScores/' + self.room_name
+            response = requests.get(url = URL)
+            playersArray = response.json()
+
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'sendScores',
+                    'scores': playersArray
+                }
+            )
+
             # Hit the API
             URL = 'http://192.168.1.38:8000/API/NextRound/' + self.room_name 
             response = requests.get(url = URL)
@@ -263,7 +289,17 @@ class ChatConsumer(WebsocketConsumer):
             'response': response
         }))
 
-    # Someone made a prediciton
+    # Send scores
+    def sendScores(self, event):
+        scores = event['scores']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'scores',
+            'recipients': [-1],
+            'scores': scores
+        }))
+
+    # End the game
     def endTheGame(self, event):
         scores = event['scores']
         # Send message to WebSocket
