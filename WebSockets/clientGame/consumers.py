@@ -105,12 +105,105 @@ class ChatConsumer(WebsocketConsumer):
                 }
             )
         # Check if someone voted
-        elif ( message == 'someoneVoted') {
+        elif ( message == 'someoneVoted'):
             voterID =  text_data_json['voterID']
-            playerID1 = text_data_json[votes]['playerID1']
-            playerID2 = text_data_json[votes]['playerID2']
-            # Call the API for the first 
-        }
+            playerID1 = text_data_json['votes']['playerID1']
+            playerID2 = text_data_json['votes']['playerID2']
+            # Call the API for the first vote
+            URL = 'http://192.168.1.38:8000/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID1) + '/'
+            response = requests.get(url = URL)
+
+            # Call the API for the second vote
+            URL = 'http://192.168.1.38:8000/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID2) + '/'
+            response = requests.get(url = URL)
+
+        # Check if it's time to make predictions
+        elif ( message == 'makePrediction'):
+            # Grab all the participants of that game
+            URL = 'http://192.168.1.38:8000/API/GetParticipants/' + self.room_name
+            response = requests.get(url = URL)
+
+            # This contains a list of players by their playerID
+            playersArray = response.json()
+
+            # Add the host to the players Array
+            playersArray.append(-1)
+
+            # Send the message to make prediction 
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'makePrediction',
+                    'message': 'makePrediction',
+                    'recipients': playersArray
+                }
+            )
+
+        # Check if someone made a prediction
+        elif ( message == 'someonePredicted' ):
+            playerID = text_data_json['playerID']
+            prediction = text_data_json['prediction']
+
+            # Send the predictions to the API
+            URL = 'http://192.168.1.38:8000/API/MakePrediction/' + self.room_name + '/' + str(playerID) + '/' + prediction
+            response = requests.get(url = URL)
+            response = response.json()
+
+            # Send the response to the gameHost
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'madePrediction',
+                    'response': response,
+                    'recipients': [-1]
+                }
+            )
+
+        # Check if it's time for the next round
+        elif ( message == 'nextRound' ):
+            # Hit the API
+            URL = 'http://192.168.1.38:8000/API/NextRound/' + self.room_name 
+            response = requests.get(url = URL)
+            response = response.json()
+
+            if response == 'continueTheGame':
+                # Determine who get's to pick the next question
+                URL = 'http://192.168.1.38:8000/API/PickAQuestion/' + self.room_name
+                response = requests.get(url = URL)
+
+                response = response.json()
+
+                # Send the message to pick a question to the correct recipient
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'pick_question',
+                        'randomQuestion1': response['randomQuestion1'],
+                        'randomQuestion2': response['randomQuestion2'],
+                        'recipients': [response['playerID'], '-1', response['playerID']['playerID']]
+                    }
+                ) 
+            else:
+                # End the game
+                # Grab all the scores for the game
+                URL = 'http://192.168.1.38:8000/API/GrabScores/' + self.room_name
+                response = requests.get(url = URL)
+                playersArray = response.json()
+
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'endTheGame',
+                        'scores': playersArray
+                    }
+                )
+
+    # Grab all the scores for the game
+    def grabScores():
+        URL = 'http://192.168.1.38:8000/API/GrabScores/' + self.room_name
+        response = requests.get(url = URL)
+        response = response.json()
+        return(response)
 
     # Receive message from room group
     def chat_message(self, event):
@@ -137,7 +230,7 @@ class ChatConsumer(WebsocketConsumer):
             'recipients': recipients
         }))
 
-    # Pick Question
+    # Vote
     def vote(self, event):
         question = event['question']
         recipients = event['recipients']
@@ -149,4 +242,33 @@ class ChatConsumer(WebsocketConsumer):
             'question': question,
             'recipients': recipients,            
             'names': names,
+        }))
+
+    # Make prediciton
+    def makePrediction(self, event):
+        recipients = event['recipients']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'makePrediction',
+            'recipients': recipients
+        }))
+
+    # Someone made a prediciton
+    def madePrediction(self, event):
+        response = event['response']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'madePrediction',
+            'recipients': [-1],
+            'response': response
+        }))
+
+    # Someone made a prediciton
+    def endTheGame(self, event):
+        scores = event['scores']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'endTheGame',
+            'recipients': [-1],
+            'scores': scores
         }))

@@ -128,6 +128,15 @@
                         // Set the chat log to these votes
                         document.querySelector('#chat-log').innerHTML = innerHTML;
                     }
+
+                    // Check if it's a make prediction prompt
+                    else if (data.message == 'makePrediction') {
+                        // Display their options for their prediction
+                        innerHTML = '<button onClick="makePrediction(0)">Most votes</button>';
+                        innerHTML = innerHTML + '<button onClick="makePrediction(1)">Some votes</button>';
+                        innerHTML = innerHTML + '<button onClick="makePrediction(2)">No votes</button>';
+                        document.getElementById('chat-log').innerHTML = innerHTML;
+                    }
                 }
             }            
         };
@@ -174,6 +183,44 @@
 
             // Hide the voting now
             document.querySelector('#chat-log').innerHTML = 'Waiting...';
+        }
+
+        function makePrediction(option) {
+            if (option == 0) {
+                // Most votes
+                // Send it off
+                chatSocket.send(JSON.stringify({
+                    'message': 'someonePredicted',
+                    'playerID': playerID,
+                    'prediction': 'most'
+                }));
+
+                // Hide the prediction now
+                document.getElementById('chat-log').innerHTML = 'Waiting...';
+                
+            } else if (option == 1) {
+                // Some votes
+                // Send it off
+                chatSocket.send(JSON.stringify({
+                    'message': 'someonePredicted',
+                    'playerID': playerID,
+                    'prediction': 'some'
+                }));
+
+                // Hide the prediction now
+                document.getElementById('chat-log').innerHTML = 'Waiting...';
+            } else {
+                // No votes
+                // Send it off
+                chatSocket.send(JSON.stringify({
+                    'message': 'someonePredicted',
+                    'playerID': playerID,
+                    'prediction': 'none'
+                }));
+
+                // Hide the prediction now
+                document.getElementById('chat-log').innerHTML = 'Waiting...';
+            }
         }
 
         chatSocket.onclose = function(e) {

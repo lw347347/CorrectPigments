@@ -9,6 +9,7 @@ from API.models import Games
 from API.models import Players
 from API.models import Questions
 from API.models import GameQuestions
+from API.models import Votes
 
 # ViewSets define the view behavior.
 class UserViewSet(viewsets.ModelViewSet):
@@ -127,7 +128,6 @@ def PickAQuestion(request, gameCode):
         
         # Pick a random player
         from random import seed, random
-        seed(12345)
         randomNumber = int(random() * len(playersArray)) - 1
         if randomNumber < 0:
             randomNumber = 0
@@ -242,6 +242,179 @@ def GetParticipantNames(request, gameCode):
     # Send back the array
     return Response(playersArray)
 
+# Cast Vote
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def CastVote(request, gameCode, voterID, playerID):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so get the players we're looking for
+        voter = Players.objects.filter(playerID = voterID)[0]
+        player = Players.objects.filter(playerID = playerID)[0]
+
+        # Find the gameQuestion we're looking for
+        gameQuestion = GameQuestions()
+        gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+        for question in gameQuestions:
+            gameQuestion = question
+
+        # Input everything into the database
+        vote = Votes()
+        vote.gameQuestionID = gameQuestion
+        vote.voterID = voter
+        vote.playerID = player
+        vote.save()
+
+    # Send back the voteID
+    return Response(vote.voteID)
+
+# Make Prediction
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def MakePrediction(request, gameCode, playerID, prediction):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+    
+    # Make the playerID an int
+    playerID = int(playerID)
+
+    # Find out if they have most, some, or none of the votes
+    # Get the last gameQuestionID
+    gameQuestionID = ''
+    gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+    for question in gameQuestions:
+        gameQuestionID = question.gameQuestionID
+
+    # Get the votes for that gameQuestion
+    votes = Votes.objects.filter(gameQuestionID = gameQuestionID)
+
+    # Tally up the votes
+    voteArray = []
+    for vote in votes:
+        # Check if that player is in the voteArray
+        theyAreInAlready = False
+        voteArrayIndex = 0
+        for item in voteArray:
+            if vote.playerID == item[0]:
+                theyAreInAlready = True
+                break
+            else:
+                voteArrayIndex = voteArrayIndex + 1
+        if theyAreInAlready == True:
+            # Increment how many votes they have
+            voteArray[voteArrayIndex][1] = voteArray[voteArrayIndex][1] + 1
+        else:
+            # They aren't in there so push them to it and increment their vote count
+            voteArray.append([vote.playerID, 1])
+    # Determine the highest number of votes
+    highestNumberOfVotes = 0
+    numberOfVotesForPlayer = 0
+    for vote in voteArray:
+        if vote[1] > highestNumberOfVotes:
+            highestNumberOfVotes = vote[1]
+        if vote[0].playerID == playerID:
+            # Determine how many votes they received
+            numberOfVotesForPlayer = vote[1]
+
+    # Determine if they had most, some, or none
+    correctPrediction = ''
+    if numberOfVotesForPlayer == 0:
+        correctPrediction = 'none'
+    elif numberOfVotesForPlayer < highestNumberOfVotes:
+        correctPrediction = 'some'
+    else:
+        correctPrediction = 'most'
+    
+    # Determine how many points they get
+    response = ''
+    if prediction == correctPrediction:
+        if prediction == 'some':
+            # They get 1 point
+            player = Players.objects.filter(playerID = playerID)[0]
+            player.points = player.points + 1
+            player.save()
+
+            # Build the response
+            response = player.realName + ' earned 1 point because they predicted they would get some votes '
+            response = response + 'and they had ' + str(numberOfVotesForPlayer) + ' votes.'
+        elif prediction == 'most':
+            # They get 3 points
+            player = Players.objects.filter(playerID = playerID)[0]
+            player.points = player.points + 3
+            player.save()
+
+            # Build the response
+            response = player.realName + ' earned 3 points because they predicted they would get most votes ' 
+            response = response + 'and they had ' + str(numberOfVotesForPlayer) + ' votes.'
+
+        elif prediction == 'none':
+            # They get 3 points
+            player = Players.objects.filter(playerID = playerID)[0]
+            player.points = player.points + 3
+            player.save()
+
+            # Build the response
+            response = player.realName + ' earned 3 points because they predicted they would get no votes.'
+
+    else:
+        # Build the response
+        if prediction == 'none':
+            prediction = 'no'
+
+        player = Players.objects.filter(playerID = playerID)[0]
+        response = player.realName + " didn't earn any points because they predicted they would get "
+        response = response + prediction + ' votes and they had ' + str(numberOfVotesForPlayer) + '.'
+
+    # Send back the response
+    return Response(response)
+
+# Next Round
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def NextRound(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so count the numberOfRounds
+        numberOfRounds = 0
+        gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+        for item in gameQuestions:
+            numberOfRounds = numberOfRounds + 1
+        
+        # Compare that to the number of rounds in the game
+        game = Games.objects.filter(gameID = gameID)[0]
+        if numberOfRounds < game.numberOfRounds:
+            # The game should continue
+            return Response('continueTheGame')
+        else:
+            # The game should end
+            return Response('endTheGame')
+
+    # Send back the voteID
+    return Response(vote.voteID)
+
+# Grab Scores
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def GrabScores(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so grab all the players
+        players = Players.objects.filter(gameID = gameID).order_by('-points')
+        playersArray = []
+        for player in players:
+            playersArray.append({ 'realName': player.realName, 'points': player.points })
+
+    # Send back the voteID
+    return Response(playersArray)
 
 #WebSockets
 # chat/views.py
