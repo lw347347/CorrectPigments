@@ -159,6 +159,51 @@ class ChatConsumer(WebsocketConsumer):
                 }
             )
 
+        # Check if it's time for the next round
+        elif ( message == 'nextRound' ):
+            # Hit the API
+            URL = 'http://192.168.1.38:8000/API/NextRound/' + self.room_name 
+            response = requests.get(url = URL)
+            response = response.json()
+
+            if response == 'continueTheGame':
+                # Determine who get's to pick the next question
+                URL = 'http://192.168.1.38:8000/API/PickAQuestion/' + self.room_name
+                response = requests.get(url = URL)
+
+                response = response.json()
+
+                # Send the message to pick a question to the correct recipient
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'pick_question',
+                        'randomQuestion1': response['randomQuestion1'],
+                        'randomQuestion2': response['randomQuestion2'],
+                        'recipients': [response['playerID'], '-1', response['playerID']['playerID']]
+                    }
+                ) 
+            else:
+                # End the game
+                # Grab all the scores for the game
+                URL = 'http://192.168.1.38:8000/API/GrabScores/' + self.room_name
+                response = requests.get(url = URL)
+                playersArray = response.json()
+
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'endTheGame',
+                        'scores': playersArray
+                    }
+                )
+
+    # Grab all the scores for the game
+    def grabScores():
+        URL = 'http://192.168.1.38:8000/API/GrabScores/' + self.room_name
+        response = requests.get(url = URL)
+        response = response.json()
+        return(response)
 
     # Receive message from room group
     def chat_message(self, event):
@@ -216,4 +261,14 @@ class ChatConsumer(WebsocketConsumer):
             'message': 'madePrediction',
             'recipients': [-1],
             'response': response
+        }))
+
+    # Someone made a prediciton
+    def endTheGame(self, event):
+        scores = event['scores']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'endTheGame',
+            'recipients': [-1],
+            'scores': scores
         }))

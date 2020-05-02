@@ -30,6 +30,14 @@
 
         function displayMadePredictionResults() {
             document.getElementById('chat-log').innerHTML = madePredictionResults;
+            document.getElementById('countdown').innerHTML = '<button onclick="nextRound()">Next Round</button>'
+        }
+
+        function nextRound() {
+            // Send off the nextRound message
+            chatSocket.send(JSON.stringify({
+                'message': 'nextRound'
+            }));
         }
 
         chatSocket.onmessage = function(e) {
@@ -45,6 +53,9 @@
                     // It was intended for the server
                     // Check if it was a pickQuestion
                     if (data.randomQuestion1) {
+                        // Empty the madePredictionResults
+                        madePredictionResults = [];
+
                         // It was a pickQuestion so figure out the display
                         innerHTML = recipients[0]['realName'] + ' gets to choose the question.<br>';
                         innerHTML = innerHTML + '<h3>Question 1<h3><h4>' + data.randomQuestion1.question +'<h4><b4>';
@@ -90,6 +101,20 @@
                     else if (data.message == 'madePrediction') {
                         // Add it to the madePrediction results
                         madePredictionResults = madePredictionResults + '<h3>' + (data.response) + '</h3>'
+                    }
+
+                    // Check if it's time to end the game
+                    else if (data.message == 'endTheGame') {
+                        innerHTML = '<table><tr><th>Player</th><th>Score</th></tr>'
+                        scores = data.scores
+                        for (var iCount = 0; iCount < scores.length; iCount++) {
+                            innerHTML = innerHTML + '<tr><th>' + scores[iCount]['realName'] + '</th>';
+                            innerHTML = innerHTML + '<th>' + scores[iCount]['points'] + '</th></tr>';
+                        }
+                        innerHTML = innerHTML + '</table>';
+
+                        // Set it equal to the chat log
+                        document.getElementById('chat-log').innerHTML = innerHTML;
                     }
 
                     else {

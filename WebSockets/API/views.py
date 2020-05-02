@@ -371,6 +371,51 @@ def MakePrediction(request, gameCode, playerID, prediction):
     # Send back the response
     return Response(response)
 
+# Next Round
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def NextRound(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so count the numberOfRounds
+        numberOfRounds = 0
+        gameQuestions = GameQuestions.objects.filter(gameID = gameID)
+        for item in gameQuestions:
+            numberOfRounds = numberOfRounds + 1
+        
+        # Compare that to the number of rounds in the game
+        game = Games.objects.filter(gameID = gameID)[0]
+        if numberOfRounds < game.numberOfRounds:
+            # The game should continue
+            return Response('continueTheGame')
+        else:
+            # The game should end
+            return Response('endTheGame')
+
+    # Send back the voteID
+    return Response(vote.voteID)
+
+# Grab Scores
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def GrabScores(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so grab all the players
+        players = Players.objects.filter(gameID = gameID).order_by('-points')
+        playersArray = []
+        for player in players:
+            playersArray.append({ 'realName': player.realName, 'points': player.points })
+
+    # Send back the voteID
+    return Response(playersArray)
+
 #WebSockets
 # chat/views.py
 from django.shortcuts import render
