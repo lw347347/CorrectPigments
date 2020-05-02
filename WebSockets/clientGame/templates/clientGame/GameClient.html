@@ -13,7 +13,56 @@
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
         const clientName = JSON.parse(document.getElementById('clientName').textContent);
         const playerID = JSON.parse(document.getElementById('playerID').textContent);
-        var questions = []
+        var votes = [];
+        var questions = [];
+
+        function voteIncrement(playerID) {
+            // Check how many times they voted
+            let timesVoted = 0;
+            for (var iCount = 0; iCount < votes.length; iCount++) {
+                timesVoted = timesVoted + votes[iCount][1];
+            }
+
+            if (timesVoted <= 1) {
+                // Set the playerID plus 1
+                // Check if it exists in the votes array
+                let itExists = false;
+                let indexForVote = -1;
+                for (var iCount = 0; iCount < votes.length; iCount++) {
+                    if (votes[iCount][0] == playerID) {
+                        itExists = true;
+                        indexForVote = iCount;
+                    }
+                }
+
+                if (itExists == true) {
+                    // Increment it by one
+                    votes[indexForVote][1] = votes[indexForVote][1] + 1;
+
+                    // Set the DOM tag to the correct votes
+                    document.getElementById('votesFor' + playerID).innerHTML = votes[indexForVote][1];
+                } else {
+                    // Add it to the array and increment it by one
+                    votes.push([playerID, 1])
+
+                    // Set the DOM tag to the correct votes
+                    document.getElementById('votesFor' + playerID).innerHTML = votes[votes.length - 1][1];
+                }
+            } else {
+                alert("You've already voted twice.");
+            }
+            
+        }
+
+        function clearVotes() {
+            // Clear the votes in the DOM
+            for (var iCount = 0; iCount < votes.length; iCount++) {
+                document.getElementById('votesFor' + votes[iCount][0]).innerHTML = '';
+            }
+
+            // Clear the votes array
+            votes = [];
+        }        
 
         // Input that we're waiting for the game to start
         document.getElementById('chat-log').innerHTML = 'Waiting for the game to start...';
@@ -50,10 +99,10 @@
                         // Build the questions out
                         innerHTML = 'Pick a question<br>';
                         innerHTML = innerHTML + "<button id='randomQuestion1' name='" + data.randomQuestion1.questionID 
-                            + "' onclick='sendQuestion(1)'>";
+                            + "' onclick='sendQuestion(0)'>";
                         innerHTML = innerHTML + '1</button><br>';
                         innerHTML = innerHTML + "<button id='randomQuestion2' name='" + data.randomQuestion2.questionID 
-                            + "' onclick='sendQuestion(2)'>";
+                            + "' onclick='sendQuestion(1)'>";
                         innerHTML = innerHTML + '2</button><br>';
 
                         // Set the chat log to these questions
@@ -63,11 +112,18 @@
                     // Check if it's a vote prompt
                     else if (data.message == "Vote please") {                        
                         // Create the names for them to choose
-                        innerHTML = '';
+                        innerHTML = '<button id="clearVotesButton" onclick="clearVotes()">Clear Votes</button><br>';
                         for (var iCount = 0; iCount < data.names.length; iCount++) {
-                            innerHTML = innerHTML + '<button id=' + data.names[iCount].playerID + '>' + data.names[iCount].realName
-                                + '</button>';
+                            // Check if it's their playerID first because they can't vote for themselves
+                            if (data.names[iCount].playerID != playerID) {
+                                innerHTML = innerHTML + '<button id=""' + data.names[iCount].playerID + '" onclick="voteIncrement(' +
+                                data.names[iCount].playerID + ')">' + data.names[iCount].realName
+                                + '</button><h5 id="votesFor' + data.names[iCount].playerID + '"></h5>';
+                            }                            
                         }
+
+                        // Set the submit button
+                        innerHTML = innerHTML + "<button id='sendVotes' onclick='sendVotes()'>Send Votes</button>";
 
                         // Set the chat log to these votes
                         document.querySelector('#chat-log').innerHTML = innerHTML;
@@ -86,6 +142,10 @@
 
             // Hide the questions now
             document.querySelector('#chat-log').innerHTML = 'Waiting...';
+        }
+
+        function sendVotes() {
+            
         }
 
         chatSocket.onclose = function(e) {
