@@ -145,7 +145,35 @@
         }
 
         function sendVotes() {
-            
+            // Create the votes dictionary
+            let votesDictionary = {}
+
+            if (votes.length == 2) {
+                // They voted for two people
+                votesDictionary = {
+                    'playerID1': votes[0][0],
+                    'playerID2': votes[1][0]
+                }
+            } else if (votes.length == 1) {
+                // They voted for the same person twice
+                votesDictionary = {
+                    'playerID1': votes[0][0],
+                    'playerID2': votes[0][0]
+                }
+            }
+
+            // Send the question
+            chatSocket.send(JSON.stringify({
+                'message': 'someoneVoted',
+                'voterID': playerID,
+                'votes': votesDictionary
+            }));
+
+            // Set the votes array to an empty array
+            votes = [];
+
+            // Hide the voting now
+            document.querySelector('#chat-log').innerHTML = 'Waiting...';
         }
 
         chatSocket.onclose = function(e) {
