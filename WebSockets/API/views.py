@@ -9,6 +9,7 @@ from API.models import Games
 from API.models import Players
 from API.models import Questions
 from API.models import GameQuestions
+from API.models import Votes
 
 # ViewSets define the view behavior.
 class UserViewSet(viewsets.ModelViewSet):
@@ -127,7 +128,6 @@ def PickAQuestion(request, gameCode):
         
         # Pick a random player
         from random import seed, random
-        seed(12345)
         randomNumber = int(random() * len(playersArray)) - 1
         if randomNumber < 0:
             randomNumber = 0
@@ -242,6 +242,33 @@ def GetParticipantNames(request, gameCode):
     # Send back the array
     return Response(playersArray)
 
+# Cast Vote
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def CastVote(request, gameCode, voterID, playerID):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so get the players we're looking for
+        voter = Players.objects.filter(playerID = voterID)[0]
+        player = Players.objects.filter(playerID = playerID)[0]
+
+        # Find the gameQuestion we're looking for
+        gameQuestion = GameQuestions.objects.filter(gameID = gameID)
+        for question in gameQuestion:
+            gameQuestion = question
+
+        # Input everything into the database
+        vote = Votes()
+        vote.gameQuestionID = gameQuestion
+        vote.voterID = voter
+        vote.playerID = player
+        vote.save()
+
+    # Send back the voteID
+    return Response(vote.voteID)
 
 #WebSockets
 # chat/views.py
