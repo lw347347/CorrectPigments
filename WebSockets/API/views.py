@@ -113,7 +113,7 @@ def PickAQuestion(request, gameCode):
         # Figure out the person who is picking the questions
         # Grab all the players from that game
         players = Players.objects.filter(gameID = searchGameID)
-        lowestNumberOfPicks = 0
+        lowestNumberOfPicks = 1000
         playersArray = []
 
         # Figure out the lowest number of picks
@@ -128,7 +128,7 @@ def PickAQuestion(request, gameCode):
         
         # Pick a random player
         from random import seed, random
-        randomNumber = int(random() * len(playersArray)) - 1
+        randomNumber = round(random() * len(playersArray)) - 1
         if randomNumber < 0:
             randomNumber = 0
         randomPlayer = {
@@ -154,7 +154,7 @@ def PickAQuestion(request, gameCode):
             })
 
         # Pick two random questions
-        randomNumber1 = int(random() * len(questions)) - 1
+        randomNumber1 = round(random() * len(questions)) - 1
         if randomNumber1 < 0:
             randomNumber1 = 0
         randomNumber2 = randomNumber1
@@ -166,6 +166,11 @@ def PickAQuestion(request, gameCode):
                 randomNumber2 = 0
         
         randomQuestion2 = questionsArray[randomNumber2]
+
+        # Increment the numberOfPicks on the random player
+        randomPlayerDatabase = Players.objects.filter(playerID = randomPlayer['playerID'])[0]
+        randomPlayerDatabase.numberOfPicks = randomPlayerDatabase.numberOfPicks + 1
+        randomPlayerDatabase.save()
 
         return Response({ 
             'playerID': randomPlayer, 

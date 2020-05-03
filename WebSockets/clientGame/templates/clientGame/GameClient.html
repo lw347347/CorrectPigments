@@ -5,7 +5,7 @@
     <title>Correct Pigments Client</title>
 </head>
 <body>
-    <h1 id="chat-log" cols="100" rows="20"></h1><br>
+    <h1 style="font-size: 5rem;" id="chat-log" cols="100" rows="20"></h1>
     {{ gameCode|json_script:"gameCode"}}
     {{ clientName|json_script:"clientName"}}
     {{ playerID|json_script:"playerID"}}
@@ -98,10 +98,10 @@
 
                         // Build the questions out
                         innerHTML = 'Pick a question<br>';
-                        innerHTML = innerHTML + "<button id='randomQuestion1' name='" + data.randomQuestion1.questionID 
+                        innerHTML = innerHTML + "<button style='font-size: 15rem;' id='randomQuestion1' name='" + data.randomQuestion1.questionID 
                             + "' onclick='sendQuestion(0)'>";
                         innerHTML = innerHTML + '1</button><br>';
-                        innerHTML = innerHTML + "<button id='randomQuestion2' name='" + data.randomQuestion2.questionID 
+                        innerHTML = innerHTML + "<button style='font-size: 15rem;' id='randomQuestion2' name='" + data.randomQuestion2.questionID 
                             + "' onclick='sendQuestion(1)'>";
                         innerHTML = innerHTML + '2</button><br>';
 
@@ -112,18 +112,18 @@
                     // Check if it's a vote prompt
                     else if (data.message == "Vote please") {                        
                         // Create the names for them to choose
-                        innerHTML = '<button id="clearVotesButton" onclick="clearVotes()">Clear Votes</button><br>';
+                        innerHTML = '<button style="font-size: 6rem;" id="clearVotesButton" onclick="clearVotes()">Clear Votes</button><br>';
                         for (var iCount = 0; iCount < data.names.length; iCount++) {
                             // Check if it's their playerID first because they can't vote for themselves
                             if (data.names[iCount].playerID != playerID) {
-                                innerHTML = innerHTML + '<button id=""' + data.names[iCount].playerID + '" onclick="voteIncrement(' +
+                                innerHTML = innerHTML + '<button style="font-size: 6rem;" id=""' + data.names[iCount].playerID + '" onclick="voteIncrement(' +
                                 data.names[iCount].playerID + ')">' + data.names[iCount].realName
-                                + '</button><h5 id="votesFor' + data.names[iCount].playerID + '"></h5>';
+                                + '</button><div id="votesFor' + data.names[iCount].playerID + '"></div>';
                             }                            
                         }
 
                         // Set the submit button
-                        innerHTML = innerHTML + "<button id='sendVotes' onclick='sendVotes()'>Send Votes</button>";
+                        innerHTML = innerHTML + "<button style='font-size: 6rem;' id='sendVotes' onclick='sendVotes()'>Send Votes</button>";
 
                         // Set the chat log to these votes
                         document.querySelector('#chat-log').innerHTML = innerHTML;
@@ -132,9 +132,9 @@
                     // Check if it's a make prediction prompt
                     else if (data.message == 'makePrediction') {
                         // Display their options for their prediction
-                        innerHTML = '<button onClick="makePrediction(0)">Most votes</button>';
-                        innerHTML = innerHTML + '<button onClick="makePrediction(1)">Some votes</button>';
-                        innerHTML = innerHTML + '<button onClick="makePrediction(2)">No votes</button>';
+                        innerHTML = '<button style="font-size: 8rem;" onClick="makePrediction(0)">Most votes</button><br>';
+                        innerHTML = innerHTML + '<button style="font-size: 8rem;"onClick="makePrediction(1)">Some votes</button><br>';
+                        innerHTML = innerHTML + '<button style="font-size: 8rem;"onClick="makePrediction(2)">No votes</button>';
                         document.getElementById('chat-log').innerHTML = innerHTML;
                     }
                 }
