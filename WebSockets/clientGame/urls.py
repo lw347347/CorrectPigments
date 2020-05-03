@@ -10,4 +10,5 @@ urlpatterns = [
     path('GameHost/<str:gameCode>/', views.GameHost, name='GameHost'),  
     path('GameClient/<str:gameCode>/<str:clientName>/', views.GameClient, name='GameClient'),    
     path('', views.JoinGame, name='JoinGame'),
+    
 ]
