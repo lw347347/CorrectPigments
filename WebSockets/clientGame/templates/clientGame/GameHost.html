@@ -33,7 +33,7 @@
     
     <script>
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
-        var madePredictionResults = '';
+        var madePredictionResults = '<table><th>Player</th><th>Votes Predicted</th><th>Actual Votes</th><th>Points Earned</th>';
 
         // Input the gameCode into the DOM
         document.getElementById('chat-log').innerHTML = 'Your gameCode is ' + gameCode + '.<br>';
@@ -51,8 +51,16 @@
         }
 
         function displayMadePredictionResults() {
+            madePredictionResults = madePredictionResults + '</table>';
             document.getElementById('chat-log').innerHTML = madePredictionResults;
-            document.getElementById('countdown').innerHTML = '<button onclick="nextRound()">Next Round</button>'
+
+            // Reset the prediction results
+            madePredictionResults = '<table><tr><th>Player</th><th>Votes Predicted</th><th>Actual Votes</th><th>Points Earned</th></tr>';
+
+            // Send off the ready for next round message
+            chatSocket.send(JSON.stringify({
+                'message': 'readyForNextRound'
+            }));
         }
 
         function nextRound() {
@@ -75,9 +83,6 @@
                     // It was intended for the server
                     // Check if it was a pickQuestion
                     if (data.randomQuestion1) {
-                        // Empty the madePredictionResults
-                        madePredictionResults = [];
-
                         // It was a pickQuestion so figure out the display
                         let chatLog = recipients[0]['realName'] + ' gets to choose the question.<br>';
                         innerHTML = '<h3>Question 1<h3><h4>' + data.randomQuestion1.question +'<h4><b4>';
@@ -116,14 +121,33 @@
 
                     // Check if it's a makePrediction prompt
                     else if (data.message == 'makePrediction') {
-                        // Display a done button
-                        document.getElementById('countdown').innerHTML = '<button onclick="displayMadePredictionResults()">Display Prediction Results</button>';
+
+                        // Countdown
+                        var timeleft = 20;
+                        var downloadTimer = setInterval(function(){
+                        if(timeleft <= 0){
+                            clearInterval(downloadTimer);
+                            document.getElementById("countdown").innerHTML = "Make your prediction";
+
+                            // Send off the displayPredictions message
+                            chatSocket.send(JSON.stringify({
+                                'message': 'displayPredictions'
+                            }));
+
+                            // Display the predictions
+                            displayMadePredictionResults();
+                        } else {
+                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                        }
+                        timeleft -= 1;
+                        }, 1000);
                     }
 
                     // Check if someone just made a prediction
                     else if (data.message == 'madePrediction') {
                         // Add it to the madePrediction results
-                        madePredictionResults = madePredictionResults + '<h3>' + (data.response) + '</h3>'
+                        madePredictionResults = madePredictionResults + '<tr><td>' + (data.player) + '</td><td>' +
+                            (data.votesPredicted) + '</td><td>' + (data.actualVotes) + '</td><td>' + (data.pointsEarned) + '</td></tr>';
                     }
 
                     // Check if it's time to end the game

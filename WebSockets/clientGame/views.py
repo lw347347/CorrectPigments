@@ -24,7 +24,7 @@ def JoinGame(request):
 
 def GameClient(request, gameCode, clientName):
     # Add the client to the database in the API
-    URL = 'http://869e7338.ngrok.io/API/JoinGame/' + gameCode + '/' + clientName
+    URL = 'http://66484409.ngrok.io/API/JoinGame/' + gameCode + '/' + clientName
     response = requests.get(url = URL)
     print(response)
 
