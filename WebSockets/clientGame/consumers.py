@@ -167,15 +167,33 @@ class ChatConsumer(WebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'madePrediction',
-                    'response': response,
+                    'player': response['player'],
+                    'votesPredicted': response['votesPredicted'],
+                    'actualVotes': response['actualVotes'],
+                    'pointsEarned': response['pointsEarned'],
                     'recipients': [-1]
+                }
+            )
+
+        # Check if we are ready for the next round
+        elif ( message == 'readyForNextRound' ):
+            # Find out who's in charge of the game
+            URL = 'http://192.168.1.38:8123/API/WhoIsInCharge/' + self.room_name
+            response = requests.get(url = URL)
+            personInCharge = response.json()
+
+            # Send the nextRound button to the person in charge of the game
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'nextRoundButton',
+                    'recipients': personInCharge
                 }
             )
 
         # Check if it's time for the next round
         elif ( message == 'nextRound' ):
             # Grab all the players and their scores
-
             URL = 'http://192.168.1.38:8123/API/GrabScores/' + self.room_name
             response = requests.get(url = URL)
             playersArray = response.json()
@@ -282,12 +300,28 @@ class ChatConsumer(WebsocketConsumer):
 
     # Someone made a prediciton
     def madePrediction(self, event):
-        response = event['response']
+        player = event['player']
+        votesPredicted = event['votesPredicted']
+        actualVotes = event['actualVotes']
+        pointsEarned = event['pointsEarned']
+
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': 'madePrediction',
             'recipients': [-1],
-            'response': response
+            'player': player,
+            'votesPredicted': votesPredicted,
+            'actualVotes': actualVotes,
+            'pointsEarned': pointsEarned
+        }))
+
+    # Send scores
+    def nextRoundButton(self, event):
+        recipients = event['recipients']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'nextRoundButton',
+            'recipients': recipients
         }))
 
     # Send scores

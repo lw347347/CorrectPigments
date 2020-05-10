@@ -73,6 +73,30 @@ def GetParticipants(request, gameCode):
     # Send back the array
     return Response(playersArray)
 
+# Get who is in charge
+@api_view(http_method_names=['GET'])
+@permission_classes((permissions.AllowAny,))
+def WhoIsInCharge(request, gameCode):
+    # Convert the gameCode to int
+    gameID = int(gameCode, 0)
+
+    playersArray = []
+
+    # Find the game
+    if Games.objects.filter(gameID = gameID):
+        # It's found so get all the players of that game
+        players = Players.objects.filter(gameID = gameID)
+
+        # Put the players in an array
+        iCount = 0
+        for player in players:
+            if (iCount == 0):
+                playersArray.append(player.playerID)
+            iCount = iCount + 1
+            
+    # Send back the one who's in charge
+    return Response(playersArray)
+
 # Join a game
 @api_view(http_method_names=['GET'])
 @permission_classes((permissions.AllowAny,))
@@ -334,44 +358,45 @@ def MakePrediction(request, gameCode, playerID, prediction):
         correctPrediction = 'most'
     
     # Determine how many points they get
-    response = ''
+    pointsEarned = 0
     if prediction == correctPrediction:
         if prediction == 'some':
             # They get 1 point
             player = Players.objects.filter(playerID = playerID)[0]
             player.points = player.points + 1
             player.save()
+            pointsEarned = 1
 
-            # Build the response
-            response = player.realName + ' earned 1 point because they predicted they would get some votes '
-            response = response + 'and they had ' + str(numberOfVotesForPlayer) + ' votes.'
         elif prediction == 'most':
             # They get 3 points
             player = Players.objects.filter(playerID = playerID)[0]
             player.points = player.points + 3
             player.save()
-
-            # Build the response
-            response = player.realName + ' earned 3 points because they predicted they would get most votes ' 
-            response = response + 'and they had ' + str(numberOfVotesForPlayer) + ' votes.'
+            pointsEarned = 3
 
         elif prediction == 'none':
             # They get 3 points
             player = Players.objects.filter(playerID = playerID)[0]
             player.points = player.points + 3
             player.save()
-
-            # Build the response
-            response = player.realName + ' earned 3 points because they predicted they would get no votes.'
+            pointsEarned = 3
 
     else:
-        # Build the response
-        if prediction == 'none':
-            prediction = 'no'
+        # They get zero points
+        pointsEarned = 0
+    
+    player = Players.objects.filter(playerID = playerID)[0]
+    player = player.realName
+    votesPredicted = prediction
+    actualVotes = numberOfVotesForPlayer
 
-        player = Players.objects.filter(playerID = playerID)[0]
-        response = player.realName + " didn't earn any points because they predicted they would get "
-        response = response + prediction + ' votes and they had ' + str(numberOfVotesForPlayer) + '.'
+    response = { 
+        'player': player,
+        'votesPredicted': votesPredicted,
+        'actualVotes': actualVotes,
+        'pointsEarned': pointsEarned
+    }
+
 
     # Send back the response
     return Response(response)

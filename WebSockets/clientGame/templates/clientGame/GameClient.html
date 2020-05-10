@@ -16,6 +16,16 @@
         var votes = [];
         var questions = [];
 
+        function nextRound() {
+            // Send off the nextRound message
+            chatSocket.send(JSON.stringify({
+                'message': 'nextRound'
+            }));
+
+            // Set the chat log back to waiting
+            document.querySelector('#chat-log').innerHTML = 'Waiting...';
+        }
+
         function voteIncrement(playerID) {
             // Check how many times they voted
             let timesVoted = 0;
@@ -136,6 +146,13 @@
                         innerHTML = innerHTML + '<button style="font-size: 8rem;"onClick="makePrediction(1)">Some votes</button><br>';
                         innerHTML = innerHTML + '<button style="font-size: 8rem;"onClick="makePrediction(2)">No votes</button>';
                         document.getElementById('chat-log').innerHTML = innerHTML;
+                    }
+
+                    // Check if it's a display next button prompt
+                    else if (data.message == "nextRoundButton") {
+
+                        // Set the chat log to display the next round button
+                        document.querySelector('#chat-log').innerHTML = '<button onclick="nextRound()">Next round</buton>';
                     }
                 }
             }            

@@ -21,6 +21,7 @@ urlpatterns = [
     path('CastVote/<str:gameCode>/<str:voterID>/<str:playerID>/', views.CastVote, name='CastVote'),
     path('NextRound/<str:gameCode>/', views.NextRound, name='NextRound'),
     path('GrabScores/<str:gameCode>/', views.GrabScores, name='GrabScores'),
+    path('WhoIsInCharge/<str:gameCode>/', views.WhoIsInCharge, name='WhoIsInCharge'),
     path('MakePrediction/<str:gameCode>/<str:playerID>/<str:prediction>', views.MakePrediction, name='MakePrediction'),
     path('GetParticipantNames/<str:gameCode>/', views.GetParticipantNames, name='GetParticipantNames'),
     path('InputGameQuestion/<str:gameCode>/<int:questionID>/<int:playerID>/', views.InputGameQuestion, name='InputGameQuestion'),
