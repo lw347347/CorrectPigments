@@ -50,13 +50,15 @@
                     votes[indexForVote][1] = votes[indexForVote][1] + 1;
 
                     // Set the DOM tag to the correct votes
-                    document.getElementById('votesFor' + playerID).innerHTML = votes[indexForVote][1];
-                } else {
+                    // Change it to blue
+                    document.getElementById(playerID).style = "font-size: 6rem; background-color: blue;";
+                } else { 
                     // Add it to the array and increment it by one
                     votes.push([playerID, 1])
 
-                    // Set the DOM tag to the correct votes
-                    document.getElementById('votesFor' + playerID).innerHTML = votes[votes.length - 1][1];
+                    // Set the DOM tag to the correct color
+                    // Change it to green because it hasn't been clicked yet
+                    document.getElementById(playerID).style = "font-size: 6rem; background-color: green;";                   
                 }
             } else {
                 alert("You've already voted twice.");
@@ -67,7 +69,7 @@
         function clearVotes() {
             // Clear the votes in the DOM
             for (var iCount = 0; iCount < votes.length; iCount++) {
-                document.getElementById('votesFor' + votes[iCount][0]).innerHTML = '';
+                document.getElementById(votes[iCount][0]).style = 'font-size: 6rem;';
             }
 
             // Clear the votes array
@@ -126,9 +128,9 @@
                         for (var iCount = 0; iCount < data.names.length; iCount++) {
                             // Check if it's their playerID first because they can't vote for themselves
                             if (data.names[iCount].playerID != playerID) {
-                                innerHTML = innerHTML + '<button style="font-size: 6rem;" id=""' + data.names[iCount].playerID + '" onclick="voteIncrement(' +
+                                innerHTML = innerHTML + '<button style="font-size: 6rem;" id="' + data.names[iCount].playerID + '" onclick="voteIncrement(' +
                                 data.names[iCount].playerID + ')">' + data.names[iCount].realName
-                                + '</button><div id="votesFor' + data.names[iCount].playerID + '"></div>';
+                                + '</button><br>';
                             }                            
                         }
 
@@ -152,7 +154,7 @@
                     else if (data.message == "nextRoundButton") {
 
                         // Set the chat log to display the next round button
-                        document.querySelector('#chat-log').innerHTML = '<button onclick="nextRound()">Next round</buton>';
+                        document.querySelector('#chat-log').innerHTML = '<button onclick="nextRound()" style="font-size: 8rem;">Next round</buton>';
                     }
                 }
             }            
