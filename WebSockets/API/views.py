@@ -434,12 +434,13 @@ def NextRound(request, gameCode):
 def GrabScores(request, gameCode):
     # Convert the gameCode to int
     gameID = int(gameCode, 0)
+    
+    playersArray = []
 
     # Find the game
     if Games.objects.filter(gameID = gameID):
         # It's found so grab all the players
         players = Players.objects.filter(gameID = gameID).order_by('-points')
-        playersArray = []
         for player in players:
             playersArray.append({ 'realName': player.realName, 'points': player.points })
 
