@@ -141,6 +141,9 @@
                         if(timeleft <= 0){
                             clearInterval(downloadTimer);
 
+                            // Clear the countdown
+                            document.getElementById("countdown").innerHTML = ""
+
                             // Send off the displayPredictions message
                             chatSocket.send(JSON.stringify({
                                 'message': 'displayPredictions'
