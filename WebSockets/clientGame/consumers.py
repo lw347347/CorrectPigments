@@ -14,7 +14,23 @@ class ChatConsumer(WebsocketConsumer):
             self.channel_name
         )
 
-        self.accept()
+        self.accept()        
+
+        # Grab all the players and their scores
+        URL = 'http://192.168.1.38/API/GrabScores/' + self.room_name
+        response = requests.get(url = URL)
+        if (response):
+            playersArray = response.json()
+        else:
+            x = 1
+        # Send the message that so and so has entered
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            {
+                'type': 'someoneJoined',
+                'scores': playersArray
+            }
+        )
 
     def disconnect(self, close_code):
         # Leave room group
@@ -32,11 +48,11 @@ class ChatConsumer(WebsocketConsumer):
         # Check if it says to start the game
         if (message == 'startGame'):
             # Set the game as started in the API
-            URL = 'http://192.168.1.38:8123/API/StartGame/' + self.room_name
+            URL = 'http://192.168.1.38/API/StartGame/' + self.room_name
             requests.get(url = URL)
 
             # Grab all the participants of that game
-            URL = 'http://192.168.1.38:8123/API/GetParticipants/' + self.room_name
+            URL = 'http://192.168.1.38/API/GetParticipants/' + self.room_name
             response = requests.get(url = URL)
 
             # This contains a list of players by their playerID
@@ -56,7 +72,7 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             # Grab all the players and their scores (0)
-            URL = 'http://192.168.1.38:8123/API/GrabScores/' + self.room_name
+            URL = 'http://192.168.1.38/API/GrabScores/' + self.room_name
             response = requests.get(url = URL)
             playersArray = response.json()
 
@@ -69,7 +85,7 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             # Figure out who is picking the first question
-            URL = 'http://192.168.1.38:8123/API/PickAQuestion/' + self.room_name
+            URL = 'http://192.168.1.38/API/PickAQuestion/' + self.room_name
             response = requests.get(url = URL)
 
             response = response.json()
@@ -91,11 +107,11 @@ class ChatConsumer(WebsocketConsumer):
             playerID =  text_data_json['playerID']
 
             # Input the gameQuestion into the database
-            URL = 'http://192.168.1.38:8123/API/InputGameQuestion/' + self.room_name + '/' + str(question['questionID']) + '/' + str(playerID)
+            URL = 'http://192.168.1.38/API/InputGameQuestion/' + self.room_name + '/' + str(question['questionID']) + '/' + str(playerID)
             response = requests.get(url = URL)
 
             # Get names
-            URL = 'http://192.168.1.38:8123/API/GetParticipantNames/' + self.room_name
+            URL = 'http://192.168.1.38/API/GetParticipantNames/' + self.room_name
             response = requests.get(url = URL)
 
             # This is equal to all the playerIDs and their names
@@ -123,17 +139,17 @@ class ChatConsumer(WebsocketConsumer):
             playerID1 = text_data_json['votes']['playerID1']
             playerID2 = text_data_json['votes']['playerID2']
             # Call the API for the first vote
-            URL = 'http://192.168.1.38:8123/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID1) + '/'
+            URL = 'http://192.168.1.38/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID1) + '/'
             response = requests.get(url = URL)
 
             # Call the API for the second vote
-            URL = 'http://192.168.1.38:8123/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID2) + '/'
+            URL = 'http://192.168.1.38/API/CastVote/' + self.room_name + '/' + str(voterID) + '/' + str(playerID2) + '/'
             response = requests.get(url = URL)
 
         # Check if it's time to make predictions
         elif ( message == 'makePrediction'):
             # Grab all the participants of that game
-            URL = 'http://192.168.1.38:8123/API/GetParticipants/' + self.room_name
+            URL = 'http://192.168.1.38/API/GetParticipants/' + self.room_name
             response = requests.get(url = URL)
 
             # This contains a list of players by their playerID
@@ -158,7 +174,7 @@ class ChatConsumer(WebsocketConsumer):
             prediction = text_data_json['prediction']
 
             # Send the predictions to the API
-            URL = 'http://192.168.1.38:8123/API/MakePrediction/' + self.room_name + '/' + str(playerID) + '/' + prediction
+            URL = 'http://192.168.1.38/API/MakePrediction/' + self.room_name + '/' + str(playerID) + '/' + prediction
             response = requests.get(url = URL)
             response = response.json()
 
@@ -178,7 +194,7 @@ class ChatConsumer(WebsocketConsumer):
         # Check if we are ready for the next round
         elif ( message == 'readyForNextRound' ):
             # Find out who's in charge of the game
-            URL = 'http://192.168.1.38:8123/API/WhoIsInCharge/' + self.room_name
+            URL = 'http://192.168.1.38/API/WhoIsInCharge/' + self.room_name
             response = requests.get(url = URL)
             personInCharge = response.json()
 
@@ -194,7 +210,7 @@ class ChatConsumer(WebsocketConsumer):
         # Check if it's time for the next round
         elif ( message == 'nextRound' ):
             # Grab all the players and their scores
-            URL = 'http://192.168.1.38:8123/API/GrabScores/' + self.room_name
+            URL = 'http://192.168.1.38/API/GrabScores/' + self.room_name
             response = requests.get(url = URL)
             playersArray = response.json()
 
@@ -207,13 +223,13 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             # Hit the API
-            URL = 'http://192.168.1.38:8123/API/NextRound/' + self.room_name 
+            URL = 'http://192.168.1.38/API/NextRound/' + self.room_name 
             response = requests.get(url = URL)
             response = response.json()
 
             if response == 'continueTheGame':
                 # Determine who get's to pick the next question
-                URL = 'http://192.168.1.38:8123/API/PickAQuestion/' + self.room_name
+                URL = 'http://192.168.1.38/API/PickAQuestion/' + self.room_name
                 response = requests.get(url = URL)
 
                 response = response.json()
@@ -231,7 +247,7 @@ class ChatConsumer(WebsocketConsumer):
             else:
                 # End the game
                 # Grab all the scores for the game
-                URL = 'http://192.168.1.38:8123/API/GrabScores/' + self.room_name
+                URL = 'http://192.168.1.38/API/GrabScores/' + self.room_name
                 response = requests.get(url = URL)
                 playersArray = response.json()
 
@@ -245,10 +261,20 @@ class ChatConsumer(WebsocketConsumer):
 
     # Grab all the scores for the game
     def grabScores():
-        URL = 'http://192.168.1.38:8123/API/GrabScores/' + self.room_name
+        URL = 'http://192.168.1.38/API/GrabScores/' + self.room_name
         response = requests.get(url = URL)
         response = response.json()
         return(response)
+
+    # Someonejoined
+    def someoneJoined(self, event):
+        scores = event['scores']
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': 'someoneJoined',
+            'recipients': [-1],
+            'scores': scores
+        }))
 
     # Receive message from room group
     def chat_message(self, event):
@@ -337,6 +363,7 @@ class ChatConsumer(WebsocketConsumer):
     # End the game
     def endTheGame(self, event):
         scores = event['scores']
+
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': 'endTheGame',

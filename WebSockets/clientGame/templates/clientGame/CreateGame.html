@@ -22,7 +22,7 @@
             var numberOfRounds = document.querySelector('#create-game-input').value;
             var gameCode = 'error'
             const Http = new XMLHttpRequest();
-            const url = 'http://66484409.ngrok.io/API/CreateGame/' + numberOfRounds;
+            const url = 'http://' + window.location.host + '/API/CreateGame/' + numberOfRounds;
             Http.open("GET", url);
             Http.send();
 

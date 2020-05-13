@@ -93,6 +93,19 @@
                         document.querySelector('#question').innerHTML = innerHTML;
                     } 
 
+                    // Check if someone has joined
+                    else if (data.message == "someoneJoined") {
+                        // Create the HTML for who has joined
+                        innerHTML = ''
+                        scores = data.scores
+                        for (var iCount = 0; iCount < scores.length; iCount++) {
+                            innerHTML = innerHTML + scores[iCount]['realName'] + ' has joined.<br>';
+                        }
+
+                        // Set it equal to the chat log
+                        document.getElementById('scores').innerHTML = innerHTML;
+                    }
+
                     // Check if it's a vote prompt
                     else if (data.question) {
                         // Create the question
