@@ -85,8 +85,8 @@
                     if (data.randomQuestion1) {
                         // It was a pickQuestion so figure out the display
                         let chatLog = recipients[0]['realName'] + ' gets to choose the question.<br>';
-                        innerHTML = '<h3>Question 1<h3><h4>' + data.randomQuestion1.question +'<h4><b4>';
-                        innerHTML = innerHTML + '<h3> Question 2<h3><h4>' + data.randomQuestion2.question + '<h4>';
+                        innerHTML = '<h3>Question 1</h3><h4>' + data.randomQuestion1.question +'</h4>';
+                        innerHTML = innerHTML + '<h3> Question 2<h3><h4>' + data.randomQuestion2.question + '</h4>';
 
                         // Set the display
                         document.querySelector('#chat-log').innerHTML = chatLog;
@@ -140,7 +140,6 @@
                         var downloadTimer = setInterval(function(){
                         if(timeleft <= 0){
                             clearInterval(downloadTimer);
-                            document.getElementById("countdown").innerHTML = "Make your prediction";
 
                             // Send off the displayPredictions message
                             chatSocket.send(JSON.stringify({
