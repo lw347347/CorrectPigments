@@ -35,6 +35,10 @@
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
         var madePredictionResults = '<table><th>Player</th><th>Votes Predicted</th><th>Actual Votes</th><th>Points Earned</th>';
 
+        // Set the background music
+        var src = 'http://chanchosserver.com/src/soundEffects/marchMajestic.m4a';
+        var backgroundMusic = new Audio(src);
+
         // Input the gameCode into the DOM
         document.getElementById('chat-log').innerHTML = 'Your gameCode is ' + gameCode + '.<br>';
 
@@ -68,6 +72,14 @@
             chatSocket.send(JSON.stringify({
                 'message': 'nextRound'
             }));
+        }
+
+        function playBackgroundMusic() {
+            backgroundMusic.play();
+        }
+
+        function pauseBackgroundMusic() {
+            backgroundMusic.pause();
         }
 
         chatSocket.onmessage = function(e) {
@@ -108,6 +120,11 @@
 
                     // Check if it's a vote prompt
                     else if (data.question) {
+                        // Play the sound effect
+                        let src = 'http://chanchosserver.com/src/soundEffects/timeToVote.m4a';
+                        let audio = new Audio(src);
+                        audio.play();
+
                         // Create the question
                         innerHTML = data.question.question;
 
@@ -117,46 +134,62 @@
                         // Countdown
                         var timeleft = 20;
                         var downloadTimer = setInterval(function(){
-                        if(timeleft <= 0){
-                            clearInterval(downloadTimer);
-                            document.getElementById("countdown").innerHTML = "Make your prediction";
+                            // Play background music
+                            playBackgroundMusic();
 
-                            // Send off the makePrediction message
-                            chatSocket.send(JSON.stringify({
-                                'message': 'makePrediction'
-                            }));
-                        } else {
-                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                            if(timeleft <= 0){
+                                // Pause background music
+                                pauseBackgroundMusic();
+
+                                clearInterval(downloadTimer);
+                                document.getElementById("countdown").innerHTML = "Make your prediction";
+
+                                // Send off the makePrediction message
+                                chatSocket.send(JSON.stringify({
+                                    'message': 'makePrediction'
+                                }));
+                            } else {
+                                document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                            }
+                            timeleft -= 1;
+                            }, 1000);
                         }
-                        timeleft -= 1;
-                        }, 1000);
-                    }
 
                     // Check if it's a makePrediction prompt
                     else if (data.message == 'makePrediction') {
+                        // Play the sound effect
+                        let src = 'http://chanchosserver.com/src/soundEffects/makeYourPrediction.m4a';
+                        let audio = new Audio(src);
+                        audio.play();
 
                         // Countdown
                         var timeleft = 20;
                         var downloadTimer = setInterval(function(){
-                        if(timeleft <= 0){
-                            clearInterval(downloadTimer);
+                            // Play background music
+                            playBackgroundMusic();
 
-                            // Clear the countdown
-                            document.getElementById("countdown").innerHTML = ""
+                            if(timeleft <= 0){
+                                // Pause background music
+                                pauseBackgroundMusic();
 
-                            // Send off the displayPredictions message
-                            chatSocket.send(JSON.stringify({
-                                'message': 'displayPredictions'
-                            }));
+                                clearInterval(downloadTimer);
 
-                            // Display the predictions
-                            displayMadePredictionResults();
-                        } else {
-                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                                // Clear the countdown
+                                document.getElementById("countdown").innerHTML = ""
+
+                                // Send off the displayPredictions message
+                                chatSocket.send(JSON.stringify({
+                                    'message': 'displayPredictions'
+                                }));
+
+                                // Display the predictions
+                                displayMadePredictionResults();
+                            } else {
+                                document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                            }
+                            timeleft -= 1;
+                            }, 1000);
                         }
-                        timeleft -= 1;
-                        }, 1000);
-                    }
 
                     // Check if someone just made a prediction
                     else if (data.message == 'madePrediction') {
