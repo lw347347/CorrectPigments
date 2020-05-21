@@ -20,13 +20,14 @@
           background-color: #dddddd;
         }
     </style>
+    <link rel="stylesheet" type="text/css" href="http://chanchosserver.com/src/styles.css">
 </head>
 <body>
     <div>
         <h1 id="chat-log" style="width: 80%; margin: auto; float: left;"></h1><br>
         <div id='scores' style="width: 20%; float: left;"></div>
-        <h2 id='question'></h2>
-        <h2 id="countdown"></h2>
+        <h1 id='question' style="width: 80%; margin: auto; float: left;"></h1>
+        <h2 id="countdown" style="width: 80%; margin: auto; float: left;"></h2>
         <input id="startGame" type="button" value="Start Game">
         {{ gameCode|json_script:"gameCode" }}
     </div>
@@ -56,6 +57,10 @@
 
         function displayMadePredictionResults() {
             madePredictionResults = madePredictionResults + '</table>';
+            // Display the question
+            document.getElementById('question').innerHTML = document.getElementById('chat-log').innerHTML;
+
+            // Display the results
             document.getElementById('chat-log').innerHTML = madePredictionResults;
 
             // Reset the prediction results
@@ -129,7 +134,8 @@
                         innerHTML = data.question.question;
 
                         // Display the question
-                        document.querySelector('#question').innerHTML = innerHTML;
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                        document.querySelector('#question').innerHTML = '';
 
                         // Countdown
                         var timeleft = 20;
@@ -142,7 +148,7 @@
                                 pauseBackgroundMusic();
 
                                 clearInterval(downloadTimer);
-                                document.getElementById("countdown").innerHTML = "Make your prediction";
+                                document.getElementById("question").innerHTML = "Make your prediction";
 
                                 // Send off the makePrediction message
                                 chatSocket.send(JSON.stringify({
@@ -208,8 +214,8 @@
                         }
                         innerHTML = innerHTML + '</table>';
 
-                        // Set it equal to the chat log
-                        document.getElementById('chat-log').innerHTML = innerHTML;
+                        // Set it equal to the question
+                        document.getElementById('question').innerHTML = innerHTML;
                     }
 
                     // Check if they are sending scores
