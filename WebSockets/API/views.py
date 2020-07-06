@@ -109,13 +109,21 @@ def JoinGame(request, gameCode, clientName):
     # Hit the database
     if Games.objects.filter(gameID=searchGameID):
         # The game is found
-        # Add them to the players
-        newPlayer = Players()
-        newPlayer.gameID = Games.objects.filter(gameID=searchGameID)[0]
-        newPlayer.realName = clientName
-        newPlayer.numberOfPicks = 0
-        newPlayer.points = 0
-        newPlayer.save()
+        # Check if they are already in the game
+        if Players.objects.filter(gameid=searchGameID, realName=clientName).exists():
+            # They already are in the game so send back the right player id
+            player = Players.objects.filter(gameid=searchGameID, realName=clientName).values()[0]
+            return Response(player['playerID'])
+
+        else:
+            # They aren't in the game yet        
+            # Add them to the players
+            newPlayer = Players()
+            newPlayer.gameID = Games.objects.filter(gameID=searchGameID)[0]
+            newPlayer.realName = clientName
+            newPlayer.numberOfPicks = 0
+            newPlayer.points = 0
+            newPlayer.save()
 
         return Response(newPlayer.playerID)
     else:
