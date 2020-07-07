@@ -1,26 +1,21 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Rooms</title>
-</head>
-<body>
-    What chat room would you like to enter?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
-
+    <head>
+        <meta charset="utf-8"/>
+        <title>Correct Pigments</title>
+        <link rel="stylesheet" type="text/css" href="http://chanchosserver.com/src/styles.css">
+    </head>
+    <body>
+        <button style="height: 25vh; width: 90%; font-size: 5rem;" onclick="redirect('JoinGame');">Join Game</button><br>
+        <button style="height: 25vh; width: 90%; font-size: 5rem;" onclick="redirect('InputQuestion');">Input Question</button><br>
+        <button style="height: 25vh; width: 90%; font-size: 5rem;" onclick="redirect('CreateGame');">Host Game</button>
+    </body>
     <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#room-name-submit').click();
-            }
-        };
+        function redirect(pageName) {
+            url = "http://" + window.location.host + "/clientGame/" + pageName + '/';
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/clientGame/' + roomName + '/';
-        };
+            // Change the URL
+            window.location = url
+        }
     </script>
-</body>
 </html>
