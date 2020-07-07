@@ -20,13 +20,14 @@
           background-color: #dddddd;
         }
     </style>
+    <link rel="stylesheet" type="text/css" href="http://chanchosserver.com/src/styles.css">
 </head>
 <body>
     <div>
         <h1 id="chat-log" style="width: 80%; margin: auto; float: left;"></h1><br>
         <div id='scores' style="width: 20%; float: left;"></div>
-        <h2 id='question'></h2>
-        <h2 id="countdown"></h2>
+        <h1 id='question' style="width: 80%; margin: auto; float: left;"></h1>
+        <h2 id="countdown" style="width: 80%; margin: auto; float: left;"></h2>
         <input id="startGame" type="button" value="Start Game">
         {{ gameCode|json_script:"gameCode" }}
     </div>
@@ -34,6 +35,10 @@
     <script>
         const gameCode = JSON.parse(document.getElementById('gameCode').textContent);
         var madePredictionResults = '<table><th>Player</th><th>Votes Predicted</th><th>Actual Votes</th><th>Points Earned</th>';
+
+        // Set the background music
+        var src = 'http://chanchosserver.com/src/soundEffects/marchMajestic.m4a';
+        var backgroundMusic = new Audio(src);
 
         // Input the gameCode into the DOM
         document.getElementById('chat-log').innerHTML = 'Your gameCode is ' + gameCode + '.<br>';
@@ -52,6 +57,10 @@
 
         function displayMadePredictionResults() {
             madePredictionResults = madePredictionResults + '</table>';
+            // Display the question
+            document.getElementById('question').innerHTML = document.getElementById('chat-log').innerHTML;
+
+            // Display the results
             document.getElementById('chat-log').innerHTML = madePredictionResults;
 
             // Reset the prediction results
@@ -70,6 +79,14 @@
             }));
         }
 
+        function playBackgroundMusic() {
+            backgroundMusic.play();
+        }
+
+        function pauseBackgroundMusic() {
+            backgroundMusic.pause();
+        }
+
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
@@ -85,8 +102,8 @@
                     if (data.randomQuestion1) {
                         // It was a pickQuestion so figure out the display
                         let chatLog = recipients[0]['realName'] + ' gets to choose the question.<br>';
-                        innerHTML = '<h3>Question 1<h3><h4>' + data.randomQuestion1.question +'<h4><b4>';
-                        innerHTML = innerHTML + '<h3> Question 2<h3><h4>' + data.randomQuestion2.question + '<h4>';
+                        innerHTML = '<h3>Question 1</h3><h4>' + data.randomQuestion1.question +'</h4>';
+                        innerHTML = innerHTML + '<h3> Question 2<h3><h4>' + data.randomQuestion2.question + '</h4>';
 
                         // Set the display
                         document.querySelector('#chat-log').innerHTML = chatLog;
@@ -108,53 +125,77 @@
 
                     // Check if it's a vote prompt
                     else if (data.question) {
+                        // Play the sound effect
+                        let src = 'http://chanchosserver.com/src/soundEffects/timeToVote.m4a';
+                        let audio = new Audio(src);
+                        audio.play();
+
                         // Create the question
                         innerHTML = data.question.question;
 
                         // Display the question
-                        document.querySelector('#question').innerHTML = innerHTML;
+                        document.querySelector('#chat-log').innerHTML = innerHTML;
+                        document.querySelector('#question').innerHTML = '';
 
                         // Countdown
                         var timeleft = 20;
                         var downloadTimer = setInterval(function(){
-                        if(timeleft <= 0){
-                            clearInterval(downloadTimer);
-                            document.getElementById("countdown").innerHTML = "Make your prediction";
+                            // Play background music
+                            playBackgroundMusic();
 
-                            // Send off the makePrediction message
-                            chatSocket.send(JSON.stringify({
-                                'message': 'makePrediction'
-                            }));
-                        } else {
-                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                            if(timeleft <= 0){
+                                // Pause background music
+                                pauseBackgroundMusic();
+
+                                clearInterval(downloadTimer);
+                                document.getElementById("question").innerHTML = "Make your prediction";
+
+                                // Send off the makePrediction message
+                                chatSocket.send(JSON.stringify({
+                                    'message': 'makePrediction'
+                                }));
+                            } else {
+                                document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                            }
+                            timeleft -= 1;
+                            }, 1000);
                         }
-                        timeleft -= 1;
-                        }, 1000);
-                    }
 
                     // Check if it's a makePrediction prompt
                     else if (data.message == 'makePrediction') {
+                        // Play the sound effect
+                        let src = 'http://chanchosserver.com/src/soundEffects/makeYourPrediction.m4a';
+                        let audio = new Audio(src);
+                        audio.play();
 
                         // Countdown
                         var timeleft = 20;
                         var downloadTimer = setInterval(function(){
-                        if(timeleft <= 0){
-                            clearInterval(downloadTimer);
-                            document.getElementById("countdown").innerHTML = "Make your prediction";
+                            // Play background music
+                            playBackgroundMusic();
 
-                            // Send off the displayPredictions message
-                            chatSocket.send(JSON.stringify({
-                                'message': 'displayPredictions'
-                            }));
+                            if(timeleft <= 0){
+                                // Pause background music
+                                pauseBackgroundMusic();
 
-                            // Display the predictions
-                            displayMadePredictionResults();
-                        } else {
-                            document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                                clearInterval(downloadTimer);
+
+                                // Clear the countdown
+                                document.getElementById("countdown").innerHTML = ""
+
+                                // Send off the displayPredictions message
+                                chatSocket.send(JSON.stringify({
+                                    'message': 'displayPredictions'
+                                }));
+
+                                // Display the predictions
+                                displayMadePredictionResults();
+                            } else {
+                                document.getElementById("countdown").innerHTML = timeleft + " seconds remaining";
+                            }
+                            timeleft -= 1;
+                            }, 1000);
                         }
-                        timeleft -= 1;
-                        }, 1000);
-                    }
 
                     // Check if someone just made a prediction
                     else if (data.message == 'madePrediction') {
@@ -173,8 +214,8 @@
                         }
                         innerHTML = innerHTML + '</table>';
 
-                        // Set it equal to the chat log
-                        document.getElementById('chat-log').innerHTML = innerHTML;
+                        // Set it equal to the question
+                        document.getElementById('question').innerHTML = innerHTML;
                     }
 
                     // Check if they are sending scores
