@@ -110,9 +110,9 @@ def JoinGame(request, gameCode, clientName):
     if Games.objects.filter(gameID=searchGameID):
         # The game is found
         # Check if they are already in the game
-        if Players.objects.filter(gameid=searchGameID, realName=clientName).exists():
+        if Players.objects.filter(gameID=searchGameID, realName=clientName).exists():
             # They already are in the game so send back the right player id
-            player = Players.objects.filter(gameid=searchGameID, realName=clientName).values()[0]
+            player = Players.objects.filter(gameID=searchGameID, realName=clientName).values()[0]
             return Response(player['playerID'])
 
         else:
