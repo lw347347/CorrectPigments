@@ -75,9 +75,6 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'WebSockets.routing.application'
-# WSGI_APPLICATION = 'WebSockets.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -144,3 +141,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ]
 }
+
+ASGI_APPLICATION = 'WebSockets.routing.application'
+# WSGI_APPLICATION = 'WebSockets.wsgi.application'
