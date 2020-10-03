@@ -31,7 +31,7 @@ class CreateGame extends React.Component {
         event.preventDefault();
 
         // Call the api
-        const response = await axios.get('http://192.168.1.38:8000/CreateGame/' + this.state.numberOfRounds)
+        const response = await axios.get('http://0.0.0.0:8000/CreateGame/' + this.state.numberOfRounds)
 
         // Send them to the waiting room
         this.props.history.push({
