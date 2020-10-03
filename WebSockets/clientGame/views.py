@@ -23,7 +23,7 @@ def JoinGame(request):
 
 def GameClient(request, gameCode, clientName):
     # Add the client to the database in the API
-    URL = 'http://192.168.1.38:80/API/JoinGame/' + gameCode + '/' + clientName
+    URL = 'http://0.0.0.0:80/API/JoinGame/' + gameCode + '/' + clientName
     response = requests.get(url = URL)
     print(response)
 

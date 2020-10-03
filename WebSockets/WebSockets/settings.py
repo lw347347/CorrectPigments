@@ -25,7 +25,7 @@ SECRET_KEY = '8h4dj7jcq&*n%7r3eq*z7=u=4a=5tg)y9^4_wt0jap0xl1jed9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.38', 'correctpigments.ga', '96.19.85.39']
+ALLOWED_HOSTS = ['0.0.0.0', 'correctpigments.ga', '96.19.85.39']
 
 
 # Application definition
