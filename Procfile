@@ -1,1 +1,1 @@
-web: daphne -b 0.0.0.0 -p 80 WebSockets.WebSockets.asgi:application
+web: daphne -b 0.0.0.0 -p 80 WebSockets.asgi:application
