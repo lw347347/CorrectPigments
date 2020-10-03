@@ -75,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'routing.application'
+ASGI_APPLICATION = 'WebSockets.routing.application'
 # WSGI_APPLICATION = 'WebSockets.wsgi.application'
 
 
