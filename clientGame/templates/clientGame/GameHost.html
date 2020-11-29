@@ -99,7 +99,7 @@
 
         function sendQuestion(questionIndex) {
             // Send the question
-            let playerID = document.getElementById('playerID').innerHTML;
+            let playerID = document.getElementById('questionPlayerID').innerHTML;
             chatSocket.send(JSON.stringify({
                 'message': 'someonePickedAQuestion',
                 'playerID': playerID,
@@ -124,7 +124,7 @@
                         let chatLog = recipients[0]['realName'] + ' gets to choose the question.<br>';
                         innerHTML = '<div onclick="sendQuestion(0);" class="questionHover"><h3>Question 1</h3><h4>' + data.randomQuestion1.question +'</h4></div>';
                         innerHTML = innerHTML + '<div onclick="sendQuestion(1);" class="questionHover"><h3> Question 2<h3><h4>' + data.randomQuestion2.question + '</h4></div>';
-                        innerHTML = innerHTML + '<span id="playerID" hidden>' + recipients[iCount] + '</span>';
+                        innerHTML = innerHTML + '<span id="questionPlayerID" style="display: none;">' + recipients[iCount] + '</span>';
 
                         // Save the questions for later
                         questions[0] = (data.randomQuestion1);
