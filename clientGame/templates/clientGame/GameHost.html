@@ -19,6 +19,10 @@
         tr:nth-child(even) {
           background-color: #dddddd;
         }
+
+        .questionHover:hover {
+            background-color: rgb(189, 219, 245);
+        }
     </style>
     <link rel="stylesheet" type="text/css" href="http://chanchosserver.com/src/styles.css">
 </head>
@@ -43,6 +47,8 @@
         // Input the gameCode into the DOM
         document.getElementById('chat-log').innerHTML = 'Your gameCode is ' + gameCode + '.<br>';
 
+        var questions = [];
+
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -59,12 +65,16 @@
             madePredictionResults = madePredictionResults + '</table>';
             // Display the question
             document.getElementById('question').innerHTML = document.getElementById('chat-log').innerHTML;
+            
+            // Add the next round button
+            madePredictionResults += '<br><button onclick="nextRound()" style="font-size: 8rem;">Next round</buton>';
 
             // Display the results
             document.getElementById('chat-log').innerHTML = madePredictionResults;
 
             // Reset the prediction results
             madePredictionResults = '<table><tr><th>Player</th><th>Votes Predicted</th><th>Actual Votes</th><th>Points Earned</th></tr>';
+
 
             // Send off the ready for next round message
             chatSocket.send(JSON.stringify({
@@ -87,6 +97,16 @@
             backgroundMusic.pause();
         }
 
+        function sendQuestion(questionIndex) {
+            // Send the question
+            let playerID = document.getElementById('playerID').innerHTML;
+            chatSocket.send(JSON.stringify({
+                'message': 'someonePickedAQuestion',
+                'playerID': playerID,
+                'question': questions[questionIndex]
+            }));
+        }
+
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             var recipients = data['recipients'];
@@ -102,8 +122,13 @@
                     if (data.randomQuestion1) {
                         // It was a pickQuestion so figure out the display
                         let chatLog = recipients[0]['realName'] + ' gets to choose the question.<br>';
-                        innerHTML = '<h3>Question 1</h3><h4>' + data.randomQuestion1.question +'</h4>';
-                        innerHTML = innerHTML + '<h3> Question 2<h3><h4>' + data.randomQuestion2.question + '</h4>';
+                        innerHTML = '<div onclick="sendQuestion(0);" class="questionHover"><h3>Question 1</h3><h4>' + data.randomQuestion1.question +'</h4></div>';
+                        innerHTML = innerHTML + '<div onclick="sendQuestion(1);" class="questionHover"><h3> Question 2<h3><h4>' + data.randomQuestion2.question + '</h4></div>';
+                        innerHTML = innerHTML + '<span id="playerID" hidden>' + recipients[iCount] + '</span>';
+
+                        // Save the questions for later
+                        questions[0] = (data.randomQuestion1);
+                        questions[1] = (data.randomQuestion2);
 
                         // Set the display
                         document.querySelector('#chat-log').innerHTML = chatLog;

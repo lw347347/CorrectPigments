@@ -80,7 +80,7 @@
         // Input that we're waiting for the game to start
         document.getElementById('chat-log').innerHTML = 'Waiting for the game to start...';
 
-        const chatSocket = new WebSocket(
+        let chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/chat/'
@@ -245,6 +245,15 @@
 
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
+            // Reload the websocket
+            chatSocket = new WebSocket(
+                'ws://'
+                + window.location.host
+                + '/ws/chat/'
+                + gameCode
+                + '/'
+            );
+            console.log('Reconnected');
         };
     </script>
 </body>
