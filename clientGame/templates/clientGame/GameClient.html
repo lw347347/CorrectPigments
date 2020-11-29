@@ -246,14 +246,7 @@
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
             // Reload the websocket
-            chatSocket = new WebSocket(
-                'ws://'
-                + window.location.host
-                + '/ws/chat/'
-                + gameCode
-                + '/'
-            );
-            console.log('Reconnected');
+            location.reload()
         };
     </script>
 </body>

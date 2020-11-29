@@ -120,11 +120,18 @@
                     // It was intended for the server
                     // Check if it was a pickQuestion
                     if (data.randomQuestion1) {
+                        // Get the person who is supposed to select a question
+                        let questionPlayerID = 0
+                        for (recipient in recipients) {
+                            if (recipients[recipient] != -1) {
+                                questionPlayerID = recipients[recipient];
+                            }
+                        }
                         // It was a pickQuestion so figure out the display
                         let chatLog = recipients[0]['realName'] + ' gets to choose the question.<br>';
                         innerHTML = '<div onclick="sendQuestion(0);" class="questionHover"><h3>Question 1</h3><h4>' + data.randomQuestion1.question +'</h4></div>';
                         innerHTML = innerHTML + '<div onclick="sendQuestion(1);" class="questionHover"><h3> Question 2<h3><h4>' + data.randomQuestion2.question + '</h4></div>';
-                        innerHTML = innerHTML + '<span id="questionPlayerID" style="display: none;">' + recipients[iCount] + '</span>';
+                        innerHTML = innerHTML + '<span id="questionPlayerID" style="display: none;">' + questionPlayerID + '</span>';
 
                         // Save the questions for later
                         questions[0] = (data.randomQuestion1);
